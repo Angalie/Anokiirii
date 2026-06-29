@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anokiirii — Glyph System</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --violet: #a78bfa;
+    --violet-dim: rgba(167,139,250,0.1);
+    --violet-mid: rgba(167,139,250,0.4);
+    --violet-glow: rgba(139,92,246,0.25);
+    --purple-deep: #6d28d9;
+    --text-bright: #ede9fe;
+    --text-mid: #c4b5fd;
+    --text-muted: rgba(196,181,253,0.55);
+    --text-faint: rgba(196,181,253,0.38);
+    --card-bg: rgba(88,28,220,0.05);
+    --card-hover: rgba(88,28,220,0.18);
+    --card-sel: rgba(88,28,220,0.26);
+    --detail-bg: rgba(88,28,220,0.14);
+    --rule-bg: rgba(88,28,220,0.07);
+    --border: rgba(167,139,250,0.12);
+    --border-mid: rgba(167,139,250,0.4);
+    --border-bright: rgba(216,180,254,0.6);
+  }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(150deg,#07000f 0%,#0c0320 50%,#050112 100%);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-bright);
+    overflow-x: hidden;
+  }
+
+  /* ── Stars ── */
+  #stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .star {
+    position: absolute; border-radius: 50%; background: white;
+    animation: twinkle var(--dur) var(--delay) ease-in-out infinite;
+  }
+  @keyframes twinkle { 0%,100%{opacity:.06;transform:scale(1)} 50%{opacity:.75;transform:scale(1.6)} }
+
+  /* ── Layout ── */
+  #app { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* ── Header ── */
+  .eyebrow { font-size: .62rem; letter-spacing: .4em; color: var(--purple-deep); text-transform: uppercase; margin-bottom: 10px; text-align: center; }
+  h1 { font-family: 'Cinzel', serif; font-size: clamp(1.5rem,5vw,2.2rem); font-weight: 700; color: var(--text-bright); letter-spacing: .08em; text-shadow: 0 0 44px rgba(167,139,250,.5); text-align: center; margin-bottom: 8px; }
+  .subtitle { color: var(--purple-deep); font-size: .78rem; letter-spacing: .15em; text-align: center; margin-bottom: 22px; }
+
+  /* ── Legend ── */
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 26px; }
+  .legend-pill { font-size: .65rem; letter-spacing: .08em; padding: 3px 11px; border-radius: 20px; }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+  .tab {
+    padding: 8px 18px; border-radius: 20px; font-size: .76rem; cursor: pointer;
+    letter-spacing: .1em; border: 1px solid rgba(167,139,250,.2);
+    background: transparent; color: rgba(196,181,253,.5);
+    transition: all .2s; font-family: 'Cinzel', serif;
+  }
+  .tab:hover { border-color: rgba(167,139,250,.5); color: var(--text-mid); }
+  .tab.active { background: rgba(88,28,220,.3); border-color: rgba(216,180,254,.5); color: #f3e8ff; }
+
+  /* ── Tab panels ── */
+  .tab-panel { display: none; animation: fadeup .25s ease; }
+  .tab-panel.show { display: block; }
+  @keyframes fadeup { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── Detail panel ── */
+  #detail {
+    display: none; gap: 24px; align-items: center;
+    background: var(--detail-bg); border: 1px solid rgba(216,180,254,.3);
+    border-radius: 16px; padding: 22px 26px; margin-bottom: 28px;
+    animation: fadeup .2s ease; box-shadow: 0 0 44px rgba(139,92,246,.2);
+  }
+  #detail.show { display: flex; }
+  #detail-glyph { flex-shrink: 0; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  #detail h2 { font-family: 'Cinzel', serif; font-size: 1.7rem; font-weight: 700; color: #f3e8ff; text-shadow: 0 0 20px rgba(216,180,254,.5); }
+  .detail-badge { font-size: .62rem; padding: 2px 8px; border-radius: 10px; letter-spacing: .08em; display: inline-block; margin-left: 8px; vertical-align: middle; }
+  .detail-name { font-family: 'Cinzel', serif; font-size: .88rem; color: var(--text-mid); letter-spacing: .1em; margin: 4px 0 3px; }
+  .detail-meaning { font-size: .76rem; color: var(--text-muted); font-style: italic; margin-bottom: 6px; }
+  .detail-desc { font-size: .71rem; color: var(--text-faint); line-height: 1.75; }
+
+  /* ── Glyph sections ── */
+  .section-label { font-family: 'Cinzel', serif; font-size: .72rem; color: rgba(196,181,253,.45); letter-spacing: .22em; margin-bottom: 10px; padding-left: 2px; }
+  .glyph-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px,1fr)); gap: 8px; margin-bottom: 30px; }
+  .glyph-card {
+    cursor: pointer; border-radius: 12px; padding: 13px 4px 9px;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    transition: all .2s ease;
+  }
+  .glyph-card:hover { background: var(--card-hover); border-color: var(--border-mid); transform: translateY(-3px); box-shadow: 0 0 20px var(--violet-glow); }
+  .glyph-card.sel { background: var(--card-sel); border-color: var(--border-bright); box-shadow: 0 0 28px rgba(167,139,250,.35); }
+  .glyph-label { font-size: .7rem; letter-spacing: .08em; font-family: 'Cinzel', serif; }
+
+  /* ── Rules ── */
+  .rule { background: var(--rule-bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px 20px; margin-bottom: 10px; }
+  .rule-title { font-family: 'Cinzel', serif; color: var(--text-mid); font-size: .8rem; margin-bottom: 5px; letter-spacing: .06em; }
+  .rule-body { color: var(--text-muted); font-size: .76rem; line-height: 1.8; }
+
+  /* ── Numbers placeholder ── */
+  .num-box { background: var(--rule-bg); border: 1px dashed rgba(167,139,250,.25); border-radius: 12px; padding: 28px; text-align: center; }
+  .num-box p { color: var(--text-muted); font-size: .78rem; line-height: 1.8; margin-bottom: 18px; }
+  .num-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 520px; margin: 0 auto 20px; text-align: left; }
+  .num-option { background: rgba(88,28,220,.1); border: 1px solid var(--border); border-radius: 10px; padding: 13px; }
+  .num-option-title { font-family: 'Cinzel', serif; font-size: .72rem; color: var(--text-mid); margin-bottom: 5px; }
+  .num-option-body { font-size: .7rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── Vocabulary ── */
+  .vocab-search { width:100%; background:rgba(139,92,246,.07); border:1px solid rgba(167,139,250,.18); border-radius:10px; padding:10px 14px; color:#e9d5ff; font-size:.88rem; outline:none; box-sizing:border-box; margin-bottom:12px; letter-spacing:.04em; }
+  .vocab-search:focus { border-color:rgba(167,139,250,.6); }
+  .vocab-cats { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; }
+  .vocab-cat { padding:5px 12px; border-radius:20px; font-size:.68rem; cursor:pointer; border:1px solid rgba(167,139,250,.2); background:transparent; color:rgba(196,181,253,.45); transition:all .18s; letter-spacing:.08em; white-space:nowrap; }
+  .vocab-cat:hover { border-color:rgba(167,139,250,.5); color:#c4b5fd; }
+  .vocab-cat.on { background:rgba(88,28,220,.3); border-color:rgba(216,180,254,.5); color:#f3e8ff; }
+  .vocab-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px; }
+  .vocab-card { border-radius:14px; padding:16px 14px; cursor:pointer; background:rgba(88,28,220,.05); border:1px solid rgba(167,139,250,.1); transition:all .2s ease; min-height:110px; display:flex; flex-direction:column; justify-content:space-between; }
+  .vocab-card:hover { background:rgba(88,28,220,.15); transform:translateY(-2px); box-shadow:0 4px 24px rgba(139,92,246,.2); }
+  .vocab-cat-label { font-size:.6rem; letter-spacing:.12em; opacity:.75; margin-bottom:6px; }
+  .vocab-word { font-family:'Cinzel',serif; font-size:1.1rem; font-weight:600; color:#f3e8ff; margin-bottom:5px; letter-spacing:.06em; }
+  .vocab-meaning { font-size:.76rem; color:rgba(196,181,253,.6); }
+  .vocab-hint { font-size:.62rem; color:rgba(167,139,250,.3); margin-top:10px; }
+  .vocab-say-btn { font-size:.6rem; padding:2px 8px; border-radius:10px; cursor:pointer; border:1px solid rgba(167,139,250,.25); background:transparent; color:rgba(167,139,250,.5); transition:all .15s; }
+  .vocab-say-btn:hover { border-color:rgba(167,139,250,.6); color:#c4b5fd; }
+  .vocab-pron-label { font-size:.62rem; letter-spacing:.12em; opacity:.7; margin-bottom:8px; }
+  .vocab-pron-text { font-family:'Cinzel',serif; font-size:.95rem; color:#f3e8ff; letter-spacing:.08em; margin-bottom:5px; line-height:1.6; }
+  .vocab-eng-sound { font-size:.72rem; color:rgba(196,181,253,.55); font-style:italic; line-height:1.6; margin-bottom:10px; }
+  .vocab-empty { text-align:center; padding:40px; color:var(--text-faint); font-size:.8rem; }
+  .vocab-key { margin-top:28px; padding:14px 18px; background:rgba(0,0,0,.2); border-radius:12px; border:1px solid rgba(167,139,250,.08); font-size:.7rem; color:rgba(167,139,250,.4); line-height:1.9; }
+  .vocab-key-title { color:rgba(196,181,253,.6); font-family:'Cinzel',serif; font-size:.74rem; margin-bottom:5px; }
+
+  /* ── Encoder / Decoder ── */
+  .enc-mode-row { display:flex; gap:8px; justify-content:center; margin-bottom:24px; }
+  .enc-mode-btn { padding:8px 20px; border-radius:20px; font-size:.76rem; cursor:pointer; letter-spacing:.1em; border:1px solid rgba(167,139,250,.2); background:transparent; color:rgba(196,181,253,.5); transition:all .2s; font-family:'Cinzel',serif; }
+  .enc-mode-btn:hover { border-color:rgba(167,139,250,.5); color:#c4b5fd; }
+  .enc-mode-btn.active { background:rgba(88,28,220,.3); border-color:rgba(216,180,254,.5); color:#f3e8ff; }
+  .enc-panel { background:rgba(88,28,220,.07); border:1px solid rgba(167,139,250,.12); border-radius:16px; padding:22px; margin-bottom:14px; }
+  .enc-label { font-family:'Cinzel',serif; font-size:.7rem; color:rgba(196,181,253,.45); letter-spacing:.2em; margin-bottom:10px; }
+  .enc-textarea { width:100%; background:rgba(0,0,0,.25); border:1px solid rgba(167,139,250,.18); border-radius:10px; padding:13px; color:#e9d5ff; font-size:.9rem; font-family:'Inter',sans-serif; outline:none; resize:vertical; min-height:90px; letter-spacing:.03em; line-height:1.7; }
+  .enc-textarea:focus { border-color:rgba(167,139,250,.5); }
+  .enc-textarea::placeholder { color:rgba(196,181,253,.22); }
+  .enc-go-btn { display:block; width:100%; margin:10px 0 0; padding:11px; background:rgba(88,28,220,.22); border:1px solid rgba(167,139,250,.3); border-radius:12px; color:#c4b5fd; font-family:'Cinzel',serif; font-size:.78rem; letter-spacing:.12em; cursor:pointer; transition:all .2s; }
+  .enc-go-btn:hover { background:rgba(88,28,220,.4); border-color:rgba(216,180,254,.5); color:#f3e8ff; }
+  .enc-output { width:100%; background:rgba(0,0,0,.18); border:1px solid rgba(167,139,250,.1); border-radius:10px; padding:13px; color:#f3e8ff; font-size:.9rem; font-family:'Cinzel',serif; line-height:1.9; min-height:50px; letter-spacing:.04em; white-space:pre-wrap; word-break:break-word; }
+  .enc-hit { color:#c4b5fd; }
+  .enc-miss { color:rgba(196,181,253,.32); border-bottom:1px dashed rgba(196,181,253,.18); cursor:pointer; }
+  .enc-miss:hover { color:rgba(196,181,253,.6); }
+  .enc-nm { color:#f472b6; }
+  .enc-missing-title { font-family:'Cinzel',serif; font-size:.7rem; color:rgba(196,181,253,.4); letter-spacing:.18em; margin:16px 0 8px; }
+  .enc-miss-pill { display:inline-flex; align-items:center; gap:5px; background:rgba(88,28,220,.1); border:1px solid rgba(167,139,250,.14); border-radius:20px; padding:4px 12px; margin:3px; font-size:.74rem; color:rgba(196,181,253,.55); cursor:pointer; transition:all .15s; }
+  .enc-miss-pill:hover { border-color:rgba(167,139,250,.4); color:#c4b5fd; }
+  .enc-miss-pill.active { border-color:rgba(216,180,254,.5); color:#f3e8ff; background:rgba(88,28,220,.22); }
+  .enc-sug-title { font-family:'Cinzel',serif; font-size:.7rem; color:rgba(196,181,253,.4); letter-spacing:.18em; margin:16px 0 8px; }
+  .enc-sug-item { background:rgba(88,28,220,.1); border:1px solid rgba(167,139,250,.14); border-radius:10px; padding:11px 14px; margin-bottom:7px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .enc-sug-word { font-family:'Cinzel',serif; font-size:.98rem; color:#f3e8ff; letter-spacing:.06em; }
+  .enc-sug-pron { font-size:.68rem; color:rgba(196,181,253,.48); font-style:italic; margin-top:2px; }
+  .enc-add-btn { font-size:.64rem; padding:4px 10px; border-radius:8px; border:1px solid rgba(167,139,250,.22); background:transparent; color:rgba(167,139,250,.5); cursor:pointer; transition:all .15s; font-family:'Cinzel',serif; white-space:nowrap; }
+  .enc-add-btn:hover { border-color:rgba(167,139,250,.6); color:#c4b5fd; }
+  .enc-add-form { background:rgba(88,28,220,.07); border:1px solid rgba(167,139,250,.12); border-radius:14px; padding:18px 20px; margin-top:12px; }
+  .enc-add-form h3 { font-family:'Cinzel',serif; font-size:.78rem; color:#c4b5fd; letter-spacing:.1em; margin-bottom:12px; }
+  .form-checks { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+  .form-check-lbl { display:flex; align-items:center; gap:5px; padding:4px 10px; border-radius:8px; border:1px solid rgba(167,139,250,.15); background:rgba(88,28,220,.06); cursor:pointer; font-size:.66rem; color:rgba(196,181,253,.55); letter-spacing:.05em; transition:all .15s; user-select:none; }
+  .form-check-lbl:hover { border-color:rgba(167,139,250,.4); color:#c4b5fd; }
+  .form-check-lbl input[type=checkbox] { accent-color:#a78bfa; cursor:pointer; width:11px; height:11px; }
+  .form-check-lbl:has(input:checked) { border-color:rgba(167,139,250,.5); background:rgba(88,28,220,.22); color:#e9d5ff; }
+  .word-form-pill { display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:8px 14px; border-radius:10px; background:rgba(88,28,220,.1); border:1px solid rgba(167,139,250,.14); }
+  .word-form-label { font-size:.55rem; letter-spacing:.1em; color:rgba(196,181,253,.4); font-family:'Cinzel',serif; }
+  .word-form-text { font-family:'Cinzel',serif; font-size:.88rem; letter-spacing:.05em; }
+  .form-checks { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .form-check-lbl { display:flex; align-items:center; gap:5px; padding:4px 10px; border-radius:8px; border:1px solid rgba(167,139,250,.15); background:rgba(88,28,220,.06); cursor:pointer; font-size:.66rem; color:rgba(196,181,253,.55); letter-spacing:.06em; transition:all .15s; user-select:none; }
+  .form-check-lbl:hover { border-color:rgba(167,139,250,.4); color:#c4b5fd; }
+  .form-check-lbl input[type=checkbox] { accent-color:#a78bfa; cursor:pointer; width:11px; height:11px; }
+  .form-check-lbl:has(input:checked) { border-color:rgba(167,139,250,.45); background:rgba(88,28,220,.22); color:#e9d5ff; }
+  .word-form-pill { display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:8px 14px; border-radius:10px; background:rgba(88,28,220,.1); border:1px solid rgba(167,139,250,.14); }
+  .word-form-label { font-size:.55rem; letter-spacing:.1em; color:rgba(196,181,253,.4); font-family:'Cinzel',serif; }
+  .word-form-text { font-family:'Cinzel',serif; font-size:.88rem; letter-spacing:.05em; }
+  .form-checks { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .form-check-lbl { display:flex; align-items:center; gap:5px; padding:4px 10px; border-radius:8px; border:1px solid rgba(167,139,250,.15); background:rgba(88,28,220,.06); cursor:pointer; font-size:.66rem; color:rgba(196,181,253,.55); letter-spacing:.06em; transition:all .15s; user-select:none; }
+  .form-check-lbl:hover { border-color:rgba(167,139,250,.4); color:#c4b5fd; }
+  .form-check-lbl input[type=checkbox] { accent-color:#a78bfa; cursor:pointer; width:11px; height:11px; }
+  .form-check-lbl:has(input:checked) { border-color:rgba(167,139,250,.45); background:rgba(88,28,220,.22); color:#e9d5ff; }
+  .word-form-pill { display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:8px 12px; border-radius:10px; background:rgba(88,28,220,.1); border:1px solid rgba(167,139,250,.14); }
+  .word-form-label { font-size:.55rem; letter-spacing:.1em; color:rgba(196,181,253,.4); font-family:'Cinzel',serif; }
+  .word-form-text { font-family:'Cinzel',serif; font-size:.88rem; color:#e9d5ff; letter-spacing:.05em; }
+  .enc-add-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+  .enc-add-input { background:rgba(0,0,0,.2); border:1px solid rgba(167,139,250,.16); border-radius:8px; padding:8px 11px; color:#e9d5ff; font-size:.78rem; font-family:'Inter',sans-serif; outline:none; width:100%; }
+  .enc-add-input:focus { border-color:rgba(167,139,250,.5); }
+  .enc-add-input::placeholder { color:rgba(196,181,253,.22); }
+  .enc-save-btn { padding:8px 18px; background:rgba(88,28,220,.3); border:1px solid rgba(167,139,250,.3); border-radius:8px; color:#c4b5fd; font-family:'Cinzel',serif; font-size:.72rem; cursor:pointer; transition:all .2s; letter-spacing:.08em; }
+  .enc-save-btn:hover { background:rgba(88,28,220,.5); color:#f3e8ff; }
+  .enc-cancel-btn { padding:8px 12px; background:transparent; border:1px solid rgba(167,139,250,.1); border-radius:8px; color:rgba(196,181,253,.38); font-size:.72rem; cursor:pointer; margin-left:6px; }
+  .enc-cancel-btn:hover { color:rgba(196,181,253,.65); }
+  .enc-pulse { animation:enc-pulse 1.4s ease-in-out infinite; }
+  @keyframes enc-pulse { 0%,100%{opacity:.35} 50%{opacity:.9} }
+  .toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%); background:rgba(88,28,220,.75); border:1px solid rgba(216,180,254,.3); border-radius:10px; padding:9px 18px; color:#f3e8ff; font-size:.76rem; font-family:'Cinzel',serif; letter-spacing:.08em; pointer-events:none; opacity:0; transition:opacity .3s; z-index:200; }
+  .toast.show { opacity:1; }
+
+  /* ── Grammar ── */
+  .gram-section { margin-bottom: 36px; }
+  .gram-section-title { font-family:'Cinzel',serif; font-size:.9rem; color:#c4b5fd; letter-spacing:.14em; margin-bottom:6px; }
+  .gram-section-sub { font-size:.74rem; color:rgba(196,181,253,.45); margin-bottom:16px; line-height:1.7; }
+  .gram-rule-pill { display:inline-block; background:rgba(88,28,220,.2); border:1px solid rgba(167,139,250,.25); border-radius:20px; padding:3px 12px; font-family:'Cinzel',serif; font-size:.68rem; color:#a78bfa; letter-spacing:.1em; margin-bottom:14px; }
+  .gram-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
+  .gram-card { border-radius:14px; padding:18px 16px; cursor:pointer; background:rgba(88,28,220,.05); border:1px solid rgba(167,139,250,.1); transition:all .2s ease; min-height:100px; }
+  .gram-card:hover { background:rgba(88,28,220,.15); transform:translateY(-2px); box-shadow:0 4px 24px rgba(139,92,246,.2); }
+  .gram-card.flipped { background:rgba(88,28,220,.18); border-color:rgba(167,139,250,.35); }
+  .gram-ank { font-family:'Cinzel',serif; font-size:1.05rem; color:#f3e8ff; letter-spacing:.06em; margin-bottom:6px; line-height:1.5; }
+  .gram-eng { font-size:.78rem; color:rgba(196,181,253,.5); font-style:italic; line-height:1.6; }
+  .gram-breakdown { font-size:.7rem; color:rgba(196,181,253,.35); margin-top:8px; line-height:1.8; }
+  .gram-hint { font-size:.62rem; color:rgba(167,139,250,.3); margin-top:10px; }
+  .gram-reveal { font-size:.78rem; color:rgba(196,181,253,.6); line-height:1.7; margin-top:8px; font-style:italic; }
+  .gram-divider { border:none; border-top:1px solid rgba(167,139,250,.08); margin:28px 0; }
+
+  /* ── Footer ── */
+  .footer { text-align: center; font-size: .62rem; color: rgba(109,40,217,.3); letter-spacing: .2em; margin-top: 48px; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-thumb { background: rgba(139,92,246,.3); border-radius: 3px; }
+
+  /* ── Encoder glyph strip ── */
+  .enc-glyph-strip { display:flex; flex-wrap:wrap; gap:10px 18px; padding:14px 0 6px; border-top:1px solid rgba(167,139,250,.07); align-items:flex-end; margin-top:6px; }
+  .enc-glyph-group { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .enc-glyph-phones { display:flex; gap:1px; align-items:center; }
+  .enc-glyph-lbl { font-size:.55rem; color:rgba(196,181,253,.28); letter-spacing:.05em; font-family:'Cinzel',serif; max-width:80px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* ── Copy buttons ── */
+  .copy-btn { display:inline-flex; align-items:center; padding:2px 8px; border-radius:6px; border:1px solid rgba(167,139,250,.15); background:transparent; color:rgba(167,139,250,.3); cursor:pointer; font-size:.58rem; font-family:'Cinzel',serif; letter-spacing:.06em; transition:all .15s; }
+  .copy-btn:hover { border-color:rgba(167,139,250,.5); color:#c4b5fd; }
+
+  /* ── Definition card back ── */
+  .def-unknown { color:#fbbf24; border-bottom:1px dashed rgba(251,191,36,.35); font-family:'Inter',sans-serif; font-size:.82rem; cursor:help; }
+  .def-ank-word { font-family:'Cinzel',serif; color:#c4b5fd; letter-spacing:.04em; }
+  .def-skip-word { color:rgba(196,181,253,.3); font-size:.82rem; }
+  .vocab-card-ib-back { display:flex; flex-direction:column; height:100%; justify-content:space-between; }
+  .vocab-card.selected { border-color:rgba(167,139,250,.5) !important; background:rgba(88,28,220,.18) !important; }
+  .vocab-glyph-row { display:flex; flex-wrap:wrap; gap:2px; align-items:center; margin:6px 0 4px; }
+  .vocab-detail-panel { background:rgba(88,28,220,.08); border:1px solid rgba(167,139,250,.18); border-radius:18px; padding:26px 28px; margin:14px 0; animation:fadeup .2s ease; }
+  .vocab-detail-word { font-family:'Cinzel',serif; font-size:2rem; font-weight:700; color:#f3e8ff; letter-spacing:.08em; margin-bottom:4px; }
+  .vocab-detail-english { font-size:1rem; color:rgba(196,181,253,.7); margin-bottom:16px; }
+  .vocab-detail-glyphs { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:20px; padding:14px 16px; background:rgba(0,0,0,.2); border-radius:12px; }
+  .vocab-detail-section { margin-bottom:16px; }
+  .vocab-detail-label { font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.12em; color:rgba(196,181,253,.45); margin-bottom:6px; }
+  .vocab-detail-close { float:right; background:none; border:1px solid rgba(167,139,250,.2); color:rgba(196,181,253,.4); border-radius:8px; padding:3px 10px; font-size:.65rem; cursor:pointer; font-family:'Cinzel',serif; letter-spacing:.06em; }
+  .vocab-detail-close:hover { border-color:rgba(167,139,250,.5); color:#c4b5fd; }
+
+  /* ── Compound suggestion ── */
+  .enc-sug-compound { background:rgba(88,28,220,.2) !important; border-color:rgba(216,180,254,.28) !important; }
+  .enc-sug-source { font-size:.61rem; color:rgba(196,181,253,.4); margin-top:3px; font-style:italic; }
+  .enc-sug-tag { font-size:.56rem; padding:1px 7px; border-radius:6px; border:1px solid rgba(216,180,254,.25); color:rgba(216,180,254,.65); background:rgba(88,28,220,.18); margin-right:4px; display:inline-block; margin-bottom:4px; letter-spacing:.08em; }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+<div class="toast" id="toast"></div>
+
+<div id="app">
+  <div class="eyebrow">The Glyph System</div>
+  <h1 id="site-title">✦ Anokiirii ✦</h1>
+  <p class="subtitle" id="site-sub"></p>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="glyphs">Glyph Reference</button>
+    <button class="tab" data-tab="numbers">Number Glyphs</button>
+    <button class="tab" data-tab="vocab">Vocabulary</button>
+    <button class="tab" data-tab="grammar">Grammar</button>
+    <button class="tab" data-tab="translate">Encoder · Decoder</button>
+    <button class="tab" data-tab="rules">System Rules</button>
+  </div>
+
+  <!-- Glyphs tab -->
+  <div class="tab-panel show" id="tab-glyphs">
+    <div id="detail">
+      <div id="detail-glyph"></div>
+      <div id="detail-info">
+        <div>
+          <h2 id="d-label"></h2>
+          <span class="detail-badge" id="d-badge"></span>
+        </div>
+        <div class="detail-name" id="d-name"></div>
+        <div class="detail-meaning" id="d-meaning"></div>
+        <div class="detail-desc" id="d-desc"></div>
+      </div>
+    </div>
+    <div id="glyph-sections"></div>
+  </div>
+
+  <!-- Numbers tab -->
+  <div class="tab-panel" id="tab-numbers">
+    <div id="num-detail" style="display:none;gap:24px;align-items:center;background:rgba(88,28,220,.14);border:1px solid rgba(216,180,254,.3);border-radius:16px;padding:22px 26px;margin-bottom:28px;animation:fadeup .2s ease;box-shadow:0 0 44px rgba(139,92,246,.2);">
+      <div id="num-detail-glyph" style="flex-shrink:0;animation:float 3s ease-in-out infinite;"></div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <h2 id="num-d-label" style="font-family:'Cinzel',serif;font-size:1.7rem;font-weight:700;color:#f3e8ff;"></h2>
+          <span style="font-size:.62rem;padding:2px 8px;border-radius:10px;letter-spacing:.08em;border:1px solid #86efac44;color:#86efac;background:#86efac11;">Number</span>
+        </div>
+        <div id="num-d-name" style="font-family:'Cinzel',serif;font-size:.88rem;color:#c4b5fd;letter-spacing:.1em;margin-bottom:3px;"></div>
+        <div id="num-d-meaning" style="font-size:.76rem;color:rgba(196,181,253,.55);font-style:italic;margin-bottom:6px;"></div>
+        <div id="num-d-desc" style="font-size:.71rem;color:rgba(196,181,253,.38);line-height:1.75;"></div>
+      </div>
+    </div>
+    <div class="section-label">✦ Number Glyphs · 0 = no anchor · odd = 1 anchor · even = 2 anchors</div>
+    <div class="glyph-grid" id="num-grid"></div>
+  </div>
+
+  <!-- Vocabulary tab -->
+  <div class="tab-panel" id="tab-vocab">
+    <input class="vocab-search" id="vocab-search" placeholder="Search words or meanings..." oninput="filterVocab()">
+    <div class="vocab-cats" id="vocab-cats"></div>
+    <div id="vocab-list"></div>
+    <div id="vocab-detail" style="display:none"></div>
+    <div class="vocab-key">
+      <div class="vocab-key-title">Pronunciation key</div>
+      <div>CAPS = stressed syllable · always the first syllable</div>
+      <div>aa ee ii oo uu = held long like a sigh</div>
+      <div>All consonants soft — no harsh sounds in Anokiirii</div>
+      <div>Every syllable even weight — like Korean rhythm</div>
+    </div>
+  </div>
+
+  <!-- Encoder / Decoder tab -->
+  <div class="tab-panel" id="tab-translate">
+    <div class="enc-mode-row">
+      <button class="enc-mode-btn active" id="enc-btn-encode" onclick="encSetMode('encode')">English → Anokiirii</button>
+      <button class="enc-mode-btn" id="enc-btn-decode" onclick="encSetMode('decode')">Anokiirii → English</button>
+    </div>
+    <div class="enc-panel">
+      <div class="enc-label" id="enc-input-label">ENGLISH INPUT</div>
+      <textarea class="enc-textarea" id="enc-input" placeholder="Type in English…" oninput="encClear()"></textarea>
+      <button class="enc-go-btn" onclick="encTranslate()">✦ Translate</button>
+    </div>
+    <div class="enc-panel" id="enc-output-panel" style="display:none">
+      <div class="enc-label" id="enc-output-label">ANOKIIRII OUTPUT</div>
+      <div class="enc-output" id="enc-output"></div>
+      <div id="enc-glyph-strip" style="display:none"></div>
+      <div id="enc-missing-section" style="display:none">
+        <div class="enc-missing-title">✦ UNRECOGNISED — tap for suggestions</div>
+        <div id="enc-miss-pills"></div>
+      </div>
+      <div id="enc-sug-section" style="display:none">
+        <div class="enc-sug-title" id="enc-sug-title"></div>
+        <div id="enc-sug-list"></div>
+      </div>
+    </div>
+    <div class="enc-add-form" id="enc-add-form" style="display:none">
+      <h3 id="enc-add-title">Add new word to vocabulary</h3>
+      <div class="enc-add-row">
+        <input class="enc-add-input" id="enc-add-word" placeholder="Anokiirii word" oninput="checkDupeWord(this.value)">
+        <div id="enc-add-dupe" style="display:none;font-size:.68rem;color:#f87171;margin-top:4px;letter-spacing:.04em">⚠ already in vocabulary</div>
+        <input class="enc-add-input" id="enc-add-english" placeholder="English translation (e.g. love)" oninput="const c=detectVocabCategory(this.value);document.getElementById('enc-add-cat').value=c;autoCheckForms(c);showRelatedDetect(this.value);">
+      </div>
+      <div class="enc-add-row">
+        <input class="enc-add-input" id="enc-add-pron" placeholder="Pronunciation (e.g. NA-we-lu)">
+        <input class="enc-add-input" id="enc-add-cat" placeholder="Category" oninput="autoCheckForms(this.value)">
+      </div>
+
+      <div style="margin-bottom:10px">
+        <div class="vocab-detail-label" style="margin-bottom:6px">GRAMMATICAL FORMS</div>
+        <div class="form-checks">
+          <label class="form-check-lbl"><input type="checkbox" id="enc-form-plural"> nalu + (plural)</label>
+          <label class="form-check-lbl"><input type="checkbox" id="enc-form-past"> lu + (past)</label>
+          <label class="form-check-lbl"><input type="checkbox" id="enc-form-future"> ni + (future)</label>
+          <label class="form-check-lbl"><input type="checkbox" id="enc-form-negative"> kese + (negative)</label>
+          <label class="form-check-lbl"><input type="checkbox" id="enc-form-question"> + -kel (question)</label>
+        </div>
+      </div>
+      <div style="margin-top:6px">
+        <button class="enc-save-btn" onclick="encSaveWord()">Save to vocabulary</button>
+        <button class="enc-cancel-btn" onclick="encCloseAdd()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Name Glyph Writer -->
+    <div style="margin-top:28px;border-top:1px solid rgba(167,139,250,.1);padding-top:24px">
+      <div class="enc-label" style="margin-bottom:10px">NAME GLYPH WRITER</div>
+      <div class="enc-panel">
+        <div style="font-size:.68rem;color:rgba(196,181,253,.4);letter-spacing:.06em;margin-bottom:8px">TYPE A NAME — PRESS ENTER TO SEE ITS GLYPHS</div>
+        <input id="name-glyph-input" placeholder="Enter a name…" oninput="nameGlyphClear()" style="width:100%;background:rgba(0,0,0,.25);border:1px solid rgba(167,139,250,.18);border-radius:10px;padding:10px 14px;color:#e9d5ff;font-size:.9rem;font-family:'Inter',sans-serif;outline:none;letter-spacing:.03em;box-sizing:border-box">
+        <button class="enc-go-btn" onclick="nameGlyphRender()" style="margin-top:8px">✦ Write Name</button>
+      </div>
+      <div id="name-glyph-output" style="display:none;margin-top:4px">
+        <div class="enc-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div class="enc-label" style="margin-bottom:0">NAME IN ANOKIIRII GLYPHS</div>
+            <button id="name-glyph-copy" class="copy-btn" style="display:none" onclick="exportGlyphsFromEl('name-glyph-display','anokiirii-name.png')">save image</button>
+          </div>
+          <div id="name-glyph-display"></div>
+          <div id="name-glyph-pron" style="margin-top:12px;font-size:.7rem;color:rgba(196,181,253,.45);letter-spacing:.06em;font-family:'Cinzel',serif"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rules tab -->
+  <div class="tab-panel" id="tab-rules">
+    <div id="rules-list"></div>
+  </div>
+
+  <!-- Grammar tab -->
+  <div class="tab-panel" id="tab-grammar">
+    <div id="grammar-content"></div>
+  </div>
+
+  <div class="footer" id="footer"></div>
+</div>
+
+<script>
+// ──────────────────────────────────────────────────────────────
+//  CONFIG — change this to point to your JSON file
+//  If you keep anokiirii-data.json in the same folder as this
+//  HTML, leave this as-is. Otherwise update the path.
+// ──────────────────────────────────────────────────────────────
+const DATA_FILE = 'anokiirii-data.json';
+
+// Type colour map
+const TYPE_COLORS = {
+  vowel:       { base:'#a78bfa', active:'#f0abfc', label:'Vowel' },
+  'vowel-long':{ base:'#c084fc', active:'#f5d0fe', label:'Long Vowel' },
+  consonant:   { base:'#67e8f9', active:'#a5f3fc', label:'Consonant' },
+  'name-only': { base:'#fbbf24', active:'#fde68a', label:'Name-only' },
+  marker:      { base:'#f472b6', active:'#fbcfe8', label:'Marker' },
+  number:      { base:'#86efac', active:'#bbf7d0', label:'Number' },
+};
+
+const SECTIONS = [
+  { key:'vowel',     label:'✦ Vowels',          filter:s=>s.type==='vowel'&&!s.long },
+  { key:'vowel-long',label:'✦ Long Vowels',      filter:s=>s.type==='vowel'&&s.long },
+  { key:'consonant', label:'✦ Consonants',       filter:s=>s.type==='consonant' },
+  { key:'name-only', label:'✦ Name-only Sounds', filter:s=>s.type==='name-only' },
+  { key:'number',    label:'✦ Number Glyphs',    filter:s=>s.type==='number' },
+  { key:'marker',    label:'✦ Hawelu — Name Marker',      filter:s=>s.type==='marker' },
+];
+
+let DATA = null;
+let selId = null;
+
+// ── SVG helpers ──────────────────────────────────────────────
+function describeArc(cx,cy,r,sa,ea){
+  const span=ea-sa;
+  if(Math.abs(span)>=359) return `M${cx} ${cy-r} A${r} ${r} 0 1 1 ${cx-.001} ${cy-r}Z`;
+  const rad=d=>(d*Math.PI)/180;
+  const x1=cx+r*Math.cos(rad(sa)),y1=cy+r*Math.sin(rad(sa));
+  const x2=cx+r*Math.cos(rad(ea)),y2=cy+r*Math.sin(rad(ea));
+  return `M${x1} ${y1} A${r} ${r} 0 ${span>180?1:0} 1 ${x2} ${y2}`;
+}
+
+let _fid=0;
+function makeSVG(paths,size,color,active,vb='0 0 52 56'){
+  const fid='f'+(++_fid);
+  const sw=active?2:1.6;
+  let h=`<svg width="${size}" height="${size}" viewBox="${vb}" fill="none">`;
+  h+=`<defs><filter id="${fid}"><feGaussianBlur stdDeviation="${active?2.5:1.5}" result="b"/>`;
+  h+=`<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  const f=`url(#${fid})`;
+  for(const p of (paths||[])){
+    if(p.t==='line') h+=`<line x1="${p.x1}" y1="${p.y1}" x2="${p.x2}" y2="${p.y2}" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" filter="${f}"/>`;
+    else if(p.t==='arc') h+=`<path d="${describeArc(p.cx,p.cy,p.r,p.sa,p.ea)}" stroke="${color}" stroke-width="${sw}" fill="none" stroke-linecap="round" filter="${f}"/>`;
+    else if(p.t==='dot') h+=`<circle cx="${p.cx}" cy="${p.cy}" r="${active?3:2.5}" fill="${color}" filter="${f}"/>`;
+    else if(p.t==='sdot') h+=`<circle cx="${p.cx}" cy="${p.cy}" r="${active?1.8:1.4}" fill="${color}" filter="${f}"/>`;
+    else if(p.t==='path') h+=`<path d="${p.d}" stroke="${color}" stroke-width="${sw}" fill="none" stroke-linecap="round" filter="${f}"/>`;
+  }
+  h+='</svg>';
+  return h;
+}
+
+function colorKey(s){ return s.type==='vowel'&&s.long?'vowel-long':s.type; }
+function getColor(s,active){ const c=TYPE_COLORS[colorKey(s)]||TYPE_COLORS.consonant; return active?c.active:c.base; }
+
+// ── Stars ──────────────────────────────────────────────────
+function makeStars(){
+  const el=document.getElementById('stars');
+  let h='';
+  for(let i=0;i<80;i++){
+    const x=(Math.random()*100).toFixed(1),y=(Math.random()*100).toFixed(1);
+    const s=(Math.random()*1.5+.2).toFixed(2),o=(Math.random()*.4+.06).toFixed(2);
+    const dur=(3+Math.random()*3).toFixed(1),del=(Math.random()*7).toFixed(1);
+    h+=`<div class="star" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;opacity:${o};--dur:${dur}s;--delay:${del}s;"></div>`;
+  }
+  el.innerHTML=h;
+}
+
+// ── Tabs ───────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('show'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('show');
+  });
+});
+
+// ── Detail panel ────────────────────────────────────────────
+function showDetail(s){
+  const color=getColor(s,true);
+  const ck=colorKey(s);
+  const tc=TYPE_COLORS[ck]||TYPE_COLORS.consonant;
+  document.getElementById('detail-glyph').innerHTML=makeSVG(s.paths,96,color,true);
+  document.getElementById('d-label').textContent='/'+s.label+'/';
+  const badge=document.getElementById('d-badge');
+  badge.textContent=tc.label;
+  badge.style.cssText=`border:1px solid ${tc.base}44;color:${tc.base};background:${tc.base}11;`;
+  document.getElementById('d-name').textContent=s.name||'';
+  document.getElementById('d-meaning').textContent=s.meaning||'';
+  document.getElementById('d-desc').textContent=s.desc||'';
+  document.getElementById('detail').classList.add('show');
+}
+function hideDetail(){ document.getElementById('detail').classList.remove('show'); }
+
+// ── Glyph sections ──────────────────────────────────────────
+function renderGlyphs(){
+  const container=document.getElementById('glyph-sections');
+  const sounds=DATA.sounds||[];
+  let h='';
+  for(const sec of SECTIONS){
+    const items=sounds.filter(sec.filter);
+    if(!items.length) continue;
+    h+=`<div class="section-label">${sec.label}</div><div class="glyph-grid">`;
+    for(const s of items){
+      const active=selId===s.id;
+      const color=getColor(s,active);
+      h+=`<div class="glyph-card${active?' sel':''}" data-id="${s.id}">
+        ${makeSVG(s.paths,52,color,active)}
+        <div class="glyph-label" style="color:${active?'#f3e8ff':'rgba(196,181,253,0.5)'}">${s.label}</div>
+      </div>`;
+    }
+    h+='</div>';
+  }
+  container.innerHTML=h;
+  container.querySelectorAll('.glyph-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const id=card.dataset.id;
+      if(selId===id){ selId=null; hideDetail(); }
+      else { selId=id; showDetail(sounds.find(s=>s.id===id)); }
+      renderGlyphs();
+    });
+  });
+}
+
+// ── Rules ───────────────────────────────────────────────────
+function renderRules(){
+  const el=document.getElementById('rules-list');
+  el.innerHTML=(DATA.rules||[]).map(r=>`
+    <div class="rule">
+      <div class="rule-title">${r.title}</div>
+      <div class="rule-body">${r.body}</div>
+    </div>`).join('');
+}
+
+// ── Vocabulary ──────────────────────────────────────────────
+const CAT_COLORS = {
+  'Soul Names':'#fde68a','Names':'#f0abfc','Pronouns':'#a78bfa','Time':'#67e8f9',
+  'Numbers':'#818cf8','Greetings':'#86efac','Emotions · Light':'#6ee7b7',
+  'Emotions · Dark':'#f472b6','Emotions · In Between':'#fbbf24','Body':'#fb923c',
+  'People':'#c084fc','Actions':'#38bdf8','Descriptors':'#e879f9',
+  'Cosmos':'#818cf8','Place':'#34d399','Concepts':'#f59e0b',
+  'Journal':'#f0abfc','Grammar':'#a5f3fc',
+};
+
+// ── Emotions · In Between — definitions ──────────────────────
+const IB_CAT='Emotions · In Between';
+const DEF_LS_KEY='anokiirii_defs_v1';
+const EX_LS_KEY='anokiirii_examples_v1';
+let definitionCache={};
+let exampleCache={};
+try{definitionCache=JSON.parse(localStorage.getItem(DEF_LS_KEY)||'{}');}catch(e){}
+try{exampleCache=JSON.parse(localStorage.getItem(EX_LS_KEY)||'{}');}catch(e){}
+
+function getDefLookupWord(meaning){
+  return(meaning||'').split(/[\/·,]/)[0].trim().toLowerCase().split(/\s+/)[0];
+}
+
+const DEF_SKIP=new Set(['an','is','are','that','this','it','by','into','about','out','up','very','too','both','such','how','all','more','most','any','each','every','our','your','my','his','her','us','we','they','who','what','was','were','been','being','even','own','away','over','just','where','here','there','often','do','does','did','has','have','had','will','would','can','could','may','might','shall','should']);
+
+function stemLookup(word){
+  let hit=encFindByMeaning(word);
+  if(hit)return hit;
+  const tries=[
+    word.replace(/ings?$/,''),word.replace(/ness$/,''),word.replace(/tion$/,''),
+    word.replace(/ed$/,''),word.replace(/ful$/,''),word.replace(/ly$/,''),
+    word.replace(/er$/,''),word.replace(/ment$/,''),word.replace(/s$/,''),
+    word.replace(/ity$/,''),word.replace(/al$/,'')
+  ];
+  for(const s of tries){if(s!==word&&s.length>2){hit=encFindByMeaning(s);if(hit)return hit;}}
+  return null;
+}
+
+function translateDefToAnokiirii(def){
+  const tokens=(def||'').match(/[\w']+|[^\w\s]/g)||[];
+  return tokens.map(tok=>{
+    if(/[^\w']/.test(tok))return tok+' ';
+    const lower=tok.toLowerCase();
+    if(DEF_SKIP.has(lower))return`<span class="def-skip-word">${tok}</span> `;
+    if(lower.length<=3){
+      const shortHit=encFindByMeaning(lower);
+      if(shortHit){const w=(shortHit.word||'').replace(/^꩜\s*/,'');return`<span class="def-ank-word">${w}</span> `;}
+      return`<span class="def-unknown" title="unknown — add to vocab to translate">${tok}</span> `;
+    }
+    const hit=stemLookup(lower);
+    if(hit){
+      const w=(hit.word||'').replace(/^꩜\s*/,'');
+      return`<span class="def-ank-word">${w}</span> `;
+    }
+    return`<span class="def-unknown" title="unknown — add to vocab to translate">${tok}</span> `;
+  }).join('');
+}
+
+async function fetchOneDefinition(meaning){
+  const word=getDefLookupWord(meaning);
+  if(!word||definitionCache[word]!==undefined)return;
+  try{
+    const r=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if(r.ok){
+      const data=await r.json();
+      const meanings=data[0]?.meanings||[];
+      // Build rich definition: all parts of speech + their definitions
+      const defLines=[];
+      const exLines=[];
+      for(const m of meanings){
+        const pos=m.partOfSpeech||'';
+        for(const d of (m.definitions||[]).slice(0,3)){
+          defLines.push((pos?`[${pos}] `:'')+d.definition);
+          if(d.example) exLines.push(`"${d.example}"`);
+        }
+      }
+      definitionCache[word]=defLines.join('\n')||null;
+      exampleCache[word]=exLines.join('\n')||null;
+    }else{
+      definitionCache[word]=null;
+      exampleCache[word]=null;
+    }
+  }catch(e){
+    definitionCache[word]=null;
+    exampleCache[word]=null;
+  }
+  try{localStorage.setItem(DEF_LS_KEY,JSON.stringify(definitionCache));}catch(e){}
+  try{localStorage.setItem(EX_LS_KEY,JSON.stringify(exampleCache));}catch(e){}
+  renderVocab();
+}
+
+async function fetchDefinitions(){
+  for(const v of (DATA?.vocabulary||[])){
+    await fetchOneDefinition(v.english||v.meaning);
+  }
+}
+
+let vocabCat='All';
+let vocabSelectedKey=null;
+let vocabEditingKey=null;
+
+function renderVocabCats(){
+  const vocab=DATA.vocabulary||[];
+  const cats=['All',...[...new Set(vocab.map(v=>v.category))]];
+  const el=document.getElementById('vocab-cats');
+  const hasClearable=vocab.some(v=>v.category!=='Soul Names'&&v.category!=='Names');
+  const clearBtn=hasClearable?`<button class="vocab-cat" style="margin-left:auto;border-color:rgba(248,113,113,.3);color:rgba(248,113,113,.55);font-size:.6rem" onclick="clearAddedVocab()">✕ clear added words</button>`:'';
+  el.innerHTML=cats.map(c=>`<button class="vocab-cat${vocabCat===c?' on':''}" onclick="setVocabCat('${c.replace(/'/g,"\\'")}')">${c}</button>`).join('')+clearBtn;
+}
+
+function clearAddedVocab(){
+  if(!confirm('Remove all added words (keeps Soul Names and Names)?'))return;
+  DATA.vocabulary=DATA.vocabulary.filter(v=>v.category==='Soul Names'||v.category==='Names');
+  try{localStorage.setItem('anokiirii_vocab_additions',JSON.stringify(DATA.vocabulary));}catch(e){}
+  vocabSelectedKey=null;
+  vocabCat='All';
+  renderVocabCats();
+  renderVocab();
+  showToast('Added words cleared');
+}
+
+function setVocabCat(c){ vocabCat=c; vocabSelectedKey=null; renderVocabCats(); renderVocab(); }
+function filterVocab(){ vocabSelectedKey=null; renderVocab(); }
+
+function vocabGlyphRow(word, size){
+  const sounds=DATA?.sounds||[];
+  const phonemes=parseWordToPhonemes(word);
+  return phonemes.map(ph=>{
+    const s=sounds.find(s=>s.id===ph);
+    return s?makeSVG(s.paths,size,getColor(s,false),false):'';
+  }).join('');
+}
+
+function selectVocabWord(k, e){
+  if(e) e.stopPropagation();
+  vocabSelectedKey= vocabSelectedKey===k ? null : k;
+  renderVocab();
+  if(vocabSelectedKey){
+    setTimeout(()=>document.getElementById('vocab-detail')?.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+  }
+}
+
+function closeVocabDetail(){ vocabSelectedKey=null; vocabEditingKey=null; renderVocab(); }
+function removeWordForm(idx, formId){
+  const entry=DATA.vocabulary[idx];
+  if(!entry)return;
+  entry.forms=(entry.forms||[]).filter(f=>f!==formId);
+  try{localStorage.setItem('anokiirii_vocab_additions',JSON.stringify(DATA.vocabulary));}catch(e){}
+  renderVocab();
+}
+
+function deleteVocabWord(key){
+  const origWord=key.replace(/-\d+$/,'');
+  const idx=DATA.vocabulary.findIndex(v=>v.word===origWord);
+  if(idx===-1){showToast('Word not found');return;}
+  if(!confirm(`Delete "${origWord}" from vocabulary?`))return;
+  DATA.vocabulary.splice(idx,1);
+  try{localStorage.setItem('anokiirii_vocab_additions',JSON.stringify(DATA.vocabulary));}catch(e){}
+  vocabSelectedKey=null;
+  showToast(`"${origWord}" deleted`);
+  renderVocabCats();
+  renderVocab();
+}
+
+// Translates each line of a multi-line example block independently
+function grammarTranslateLine(sentence){
+  if(!sentence.trim()) return '';
+  const isQ=/[?]/.test(sentence);
+
+  // expand contractions
+  let s=sentence
+    .replace(/\bi'm\b/gi,'i am').replace(/\bi'd\b/gi,'i would').replace(/\bi'll\b/gi,'i will')
+    .replace(/\bi've\b/gi,'i have').replace(/\bdon't\b/gi,'do not').replace(/\bdoesn't\b/gi,'does not')
+    .replace(/\bdidn't\b/gi,'did not').replace(/\bwon't\b/gi,'will not').replace(/\bcan't\b/gi,'can not')
+    .replace(/\baren't\b/gi,'are not').replace(/\bwasn't\b/gi,'was not').replace(/\bisn't\b/gi,'is not')
+    .replace(/\bwouldn't\b/gi,'would not').replace(/\bshouldn't\b/gi,'should not')
+    .replace(/\bhadn't\b/gi,'had not').replace(/\bi'm\b/gi,'i am')
+    .replace(/[?!.,;:']+/g,' ').trim();
+
+  const words=s.split(/\s+/).filter(Boolean);
+  const lw=words.map(w=>w.toLowerCase());
+
+  // detect tense
+  let tense='';
+  if(lw.some(w=>['was','were','did','had'].includes(w))||
+     (lw.some(w=>/^[a-z]{3,}ed$/.test(w))&&!lw.includes('will'))) tense='past';
+  if(lw.some(w=>['will','would','shall'].includes(w))) tense='future';
+
+  // detect negation
+  const hasNeg=lw.includes('not');
+
+  // strip pure grammar words
+  const STRIP=new Set([
+    'am','is','are','was','were','be','been','being',
+    'do','does','did','will','would','shall','should','have','has','had',
+    'the','a','an','not','please','just','oh','well',
+  ]);
+
+  const content=words.filter(w=>!STRIP.has(w.toLowerCase()));
+
+  // move subject pronoun to front (handles "Am I" → "I ...")
+  const SUBJ=new Set(['i','me','you','he','she','they','we','us','it']);
+  const si=content.findIndex(w=>SUBJ.has(w.toLowerCase()));
+  if(si>0){const[s]=content.splice(si,1);content.unshift(s);}
+
+  // translate each content word
+  const parts=content.map(w=>{
+    const lower=w.toLowerCase();
+    let hit=encFindByMeaning(lower);
+    if(!hit&&lower.length>3) hit=stemLookup(lower);
+    if(hit){const ank=(hit.word||'').replace(/^꩜\s*/,'');return`<span class="def-ank-word">${ank}</span>`;}
+    return`<span class="def-unknown" title="unknown — add to vocab to translate">${w}</span>`;
+  });
+
+  // inject grammar particles after subject (index 1)
+  const markers=[];
+  if(tense==='past') markers.push(`<span style="color:#86efac;opacity:.75;font-family:'Cinzel',serif;font-size:.8rem">lu</span>`);
+  else if(tense==='future') markers.push(`<span style="color:#86efac;opacity:.75;font-family:'Cinzel',serif;font-size:.8rem">ni</span>`);
+  if(hasNeg) markers.push(`<span style="color:#86efac;opacity:.75;font-family:'Cinzel',serif;font-size:.8rem">kese</span>`);
+  if(markers.length&&parts.length>1) parts.splice(1,0,...markers);
+
+  let result=parts.join(' ');
+  if(isQ) result+=` <span style="color:#86efac;opacity:.75;font-family:'Cinzel',serif;font-size:.8rem">-kel</span>`;
+  return result;
+}
+
+function translateExampleToAnokiirii(text){
+  return (text||'').split('\n').map(line=>{
+    const prefix=line.match(/^(\s*[-–•]\s*)/);
+    const body=prefix?line.slice(prefix[0].length):line;
+    const translated=grammarTranslateLine(body);
+    return (prefix?`<span style="opacity:.4">${prefix[0]}</span>`:'') + translated;
+  }).join('<br>');
+}
+
+function toggleDefEdit(field, key){
+  const ids={
+    ank:  ['vd-ank-view',   'vd-ank-edit'],
+    eng:  ['vd-eng-view',   'vd-eng-edit'],
+    exAnk:['vd-exAnk-view', 'vd-exAnk-edit'],
+    exEng:['vd-exEng-view', 'vd-exEng-edit'],
+  };
+  const [viewId, editId]=ids[field]||[];
+  const view=document.getElementById(viewId);
+  const edit=document.getElementById(editId);
+  if(!view||!edit) return;
+  const isEditing=edit.style.display!=='none';
+  if(isEditing){
+    const origWord=key.replace(/-\d+$/,'');
+    const entry=DATA.vocabulary.find(v=>v.word===origWord);
+    if(entry){
+      const val=edit.value;
+      if(field==='eng'){
+        entry.customDef=val;
+        if(entry.customAnk===undefined){
+          const ankView=document.getElementById('vd-ank-view');
+          if(ankView) ankView.innerHTML=translateDefToAnokiirii(val);
+          const ankEdit=document.getElementById('vd-ank-edit');
+          if(ankEdit) ankEdit.value=val;
+        }
+        view.textContent=val;
+      } else if(field==='ank'){
+        entry.customAnk=val;
+        view.innerHTML=val;
+      } else if(field==='exAnk'){
+        entry.exampleAnk=val;
+        view.innerHTML=val||'<span style="font-size:.75rem;color:rgba(196,181,253,.2);font-family:Inter,sans-serif;font-style:italic">click ✎ to add</span>';
+      } else if(field==='exEng'){
+        entry.exampleEng=val;
+        view.innerHTML=val||'<span style="font-size:.75rem;color:rgba(196,181,253,.2);font-style:italic">click ✎ to add</span>';
+        // refresh auto-translation if exAnk hasn't been manually set
+        if(!entry.exampleAnk){
+          const ankView=document.getElementById('vd-exAnk-view');
+          if(ankView) ankView.innerHTML=val?translateExampleToAnokiirii(val):'<span style="font-size:.75rem;color:rgba(196,181,253,.2);font-family:Inter,sans-serif;font-style:italic">click ✎ to add</span>';
+        }
+      }
+      try{localStorage.setItem('anokiirii_vocab_additions',JSON.stringify(DATA.vocabulary));}catch(e){}
+      showToast('Saved ✦');
+    }
+    document.getElementById('vd-save-'+field)?.remove();
+    edit.style.display='none';
+    view.style.display='';
+  } else {
+    view.style.display='none';
+    edit.style.display='block';
+    edit.focus();
+    // add save button after textarea if not already present
+    const btnId='vd-save-'+field;
+    if(!document.getElementById(btnId)){
+      const btn=document.createElement('button');
+      btn.id=btnId;
+      btn.className='enc-save-btn';
+      btn.style.cssText='margin-top:8px;font-size:.68rem;padding:6px 14px;display:block';
+      btn.textContent='✦ Save';
+      btn.onclick=()=>toggleDefEdit(field,key);
+      edit.insertAdjacentElement('afterend',btn);
+    }
+    edit.addEventListener('keydown',function handler(e){
+      if(e.key==='Escape'){
+        edit.removeEventListener('keydown',handler);
+        document.getElementById('vd-save-'+field)?.remove();
+        toggleDefEdit(field,key);
+      }
+    });
+  }
+}
+
+function openVocabEdit(key){ vocabEditingKey=key; renderVocab(); setTimeout(()=>document.getElementById('vocab-edit-word')?.focus(),50); }
+function closeVocabEdit(){ vocabEditingKey=null; renderVocab(); }
+
+function saveVocabEdit(key){
+  const word=document.getElementById('vocab-edit-word').value.trim();
+  const english=document.getElementById('vocab-edit-english').value.trim();
+  const pronunciation=document.getElementById('vocab-edit-pron').value.trim();
+  const category=document.getElementById('vocab-edit-cat').value.trim()||detectVocabCategory(english)||'Uncategorised';
+  const meaning=document.getElementById('vocab-edit-meaning').value.trim();
+  if(!word||!english){showToast('Word and English translation required');return;}
+  // key = originalWord + '-' + filteredIndex; strip the suffix to get the original word
+  const origWord=key.replace(/-\d+$/,'');
+  const entry=DATA.vocabulary.find(v=>v.word===origWord);
+  if(!entry){showToast('Entry not found');return;}
+  const forms=getCheckedForms('edit-form');
+  entry.word=word; entry.english=english; entry.pronunciation=pronunciation; entry.category=category; entry.meaning=meaning; entry.forms=forms;
+  try{localStorage.setItem('anokiirii_vocab_additions',JSON.stringify(DATA.vocabulary));}catch(e){}
+  vocabEditingKey=null;
+  // reselect by new word + its actual index in full vocab array
+  const newIdx=DATA.vocabulary.indexOf(entry);
+  vocabSelectedKey=word+'-'+newIdx;
+  showToast(`"${word}" updated ✦`);
+  renderVocabCats();
+  renderVocab();
+}
+
+function renderVocabDetail(v, color, key){
+  const esc=s=>(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
+  // ── Edit form ──
+  if(vocabEditingKey===key){
+    const cats=Object.keys(CAT_COLORS).filter(c=>c!=='Soul Names'&&c!=='Names');
+    return `<div class="vocab-detail-panel">
+      <button class="vocab-detail-close" onclick="closeVocabEdit()">✕ cancel</button>
+      <div class="vocab-detail-label" style="margin-bottom:14px">EDIT WORD</div>
+      <div class="enc-add-row">
+        <div><div class="vocab-detail-label">ANOKIIRII WORD</div><input class="enc-add-input" id="vocab-edit-word" value="${esc(v.word)}"></div>
+        <div><div class="vocab-detail-label">ENGLISH TRANSLATION</div><input class="enc-add-input" id="vocab-edit-english" value="${esc(v.english||v.meaning)}" oninput="document.getElementById('vocab-edit-cat').value=detectVocabCategory(this.value)"></div>
+      </div>
+      <div class="enc-add-row">
+        <div><div class="vocab-detail-label">PRONUNCIATION</div><input class="enc-add-input" id="vocab-edit-pron" value="${esc(v.pronunciation)}"></div>
+        <div><div class="vocab-detail-label">CATEGORY</div><input class="enc-add-input" id="vocab-edit-cat" value="${esc(v.category)}" list="vocab-edit-cat-list"><datalist id="vocab-edit-cat-list">${cats.map(c=>`<option value="${c}">`).join('')}</datalist></div>
+      </div>
+      <div style="margin-bottom:8px"><div class="vocab-detail-label">NOTE (optional)</div><textarea class="enc-add-input" style="width:100%;resize:vertical;min-height:70px;line-height:1.6" id="vocab-edit-meaning">${esc(v.meaning)}</textarea></div>
+      <div style="margin-bottom:10px">
+        <div class="vocab-detail-label" style="margin-bottom:6px">GRAMMATICAL FORMS</div>
+        <div class="form-checks">
+          ${FORM_DEFS.map(f=>`<label class="form-check-lbl"><input type="checkbox" id="edit-form-${f.id}"${(v.forms||[]).includes(f.id)?' checked':''}> ${f.particle} (${f.label.toLowerCase()})</label>`).join('')}
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="enc-save-btn" onclick="saveVocabEdit('${esc(key)}')">✦ Save changes</button>
+        <button class="enc-cancel-btn" onclick="closeVocabEdit()">Cancel</button>
+      </div>
+    </div>`;
+  }
+
+  // ── Normal detail ──
+  const lw=getDefLookupWord(v.english||v.meaning);
+  const def=v.customDef!==undefined?v.customDef:definitionCache[lw];
+  const exEngFallback=v.exampleEng||exampleCache[lw]||'';
+  const wc=(v.word||'').replace(/^꩜\s*/,'');
+  const keyEsc=esc(key);
+
+  let defBody='';
+  if(def===undefined){
+    defBody=`<div style="font-size:.78rem;color:rgba(196,181,253,.35);font-style:italic">fetching definition…</div>`;
+  } else {
+    const displayDef=def||'';
+    const ank=v.customAnk!==undefined?v.customAnk:translateDefToAnokiirii(displayDef);
+    defBody=`<div style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <div class="vocab-detail-label" style="margin-bottom:0">IN ANOKIIRII</div>
+        <button class="copy-btn" onclick="toggleDefEdit('ank','${keyEsc}')">✎</button>
+      </div>
+      <div id="vd-ank-view" style="font-size:.85rem;line-height:2;word-break:break-word">${ank}</div>
+      <textarea id="vd-ank-edit" class="enc-add-input" style="display:none;width:100%;resize:vertical;min-height:60px;line-height:1.6;font-size:.85rem">${(v.customAnk!==undefined?v.customAnk:displayDef)}</textarea>
+    </div>
+    <div style="height:1px;background:${color}22;margin-bottom:12px"></div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+      <div class="vocab-detail-label" style="margin-bottom:0">IN ENGLISH</div>
+      <button class="copy-btn" onclick="toggleDefEdit('eng','${keyEsc}')">✎</button>
+    </div>
+    <div id="vd-eng-view" style="font-size:.8rem;color:rgba(196,181,253,.55);line-height:1.8;font-style:italic">${displayDef||'<span style="opacity:.5">No definition found.</span>'}</div>
+    <textarea id="vd-eng-edit" class="enc-add-input" style="display:none;width:100%;resize:vertical;min-height:60px;line-height:1.6;font-size:.8rem">${displayDef}</textarea>
+    <div style="margin-top:8px;font-size:.6rem;color:rgba(196,181,253,.25)">amber = not yet in vocab</div>`;
+  }
+
+  const hasNameMarker=v.word?.startsWith('꩜');
+  const sounds=DATA?.sounds||[];
+  const marker=sounds.find(s=>s.id==='nm');
+  let glyphsHTML='';
+  if(hasNameMarker&&marker) glyphsHTML+=makeSVG(marker.paths,52,'#a78bfa',false);
+  glyphsHTML+=vocabGlyphRow(v.word,52);
+
+  return `<div class="vocab-detail-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="display:flex;gap:6px">
+        <button class="vocab-detail-close" onclick="closeVocabDetail()">✕ close</button>
+        <button class="vocab-detail-close" style="border-color:rgba(167,139,250,.3);color:rgba(196,181,253,.55)" onclick="openVocabEdit('${esc(key)}')">✎ edit</button>
+        <button class="vocab-detail-close" style="border-color:rgba(248,113,113,.3);color:rgba(248,113,113,.6)" onclick="deleteVocabWord('${esc(key)}')">✕ delete</button>
+      </div>
+    </div>
+    <div class="vocab-detail-word">${v.word||''}</div>
+    <div class="vocab-detail-english" style="color:${color}">${v.english||v.meaning||''}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div class="vocab-detail-label" style="margin-bottom:0">GLYPHS</div>
+      <button class="copy-btn" onclick="exportGlyphsFromEl('vd-glyphs')">save image</button>
+    </div>
+    <div class="vocab-detail-glyphs" id="vd-glyphs" style="pointer-events:none">${glyphsHTML||'<span style="font-size:.7rem;color:rgba(196,181,253,.25)">no glyphs mapped</span>'}</div>
+    ${v.pronunciation?`<div class="vocab-detail-section">
+      <div class="vocab-detail-label">PRONUNCIATION</div>
+      <div style="font-size:1rem;font-family:'Cinzel',serif;color:#e9d5ff;letter-spacing:.06em">${v.pronunciation}</div>
+      ${v.englishSound?`<div style="font-size:.72rem;color:rgba(196,181,253,.4);margin-top:4px">${v.englishSound}</div>`:''}
+    </div>`:''}
+    ${renderWordForms(v,color)}
+    <div class="vocab-detail-section">
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+        <div class="vocab-detail-label" style="margin-bottom:0">DEFINITION</div>
+        <button class="copy-btn" onclick="copyToClipboard('${esc(wc)}')">copy word</button>
+      </div>
+      ${defBody}
+    </div>
+    <div class="vocab-detail-section" style="border-top:1px solid rgba(167,139,250,.08);padding-top:16px;margin-top:4px">
+      <div class="vocab-detail-label" style="margin-bottom:14px">EXAMPLE SENTENCES</div>
+      <div style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+          <div class="vocab-detail-label" style="margin-bottom:0;font-size:.58rem">IN ANOKIIRII</div>
+          <button class="copy-btn" onclick="toggleDefEdit('exAnk','${keyEsc}')">✎</button>
+        </div>
+        <div id="vd-exAnk-view" style="font-size:.85rem;color:rgba(196,181,253,.7);line-height:1.8;white-space:pre-wrap;font-family:'Cinzel',serif;letter-spacing:.03em;min-height:18px">${v.exampleAnk||(exEngFallback?translateExampleToAnokiirii(exEngFallback):'<span style="font-size:.75rem;color:rgba(196,181,253,.2);font-family:Inter,sans-serif;font-style:italic">click ✎ to add</span>')}</div>
+        <textarea id="vd-exAnk-edit" class="enc-add-input" style="display:none;width:100%;resize:vertical;min-height:70px;line-height:1.6;font-size:.85rem">${v.exampleAnk||''}</textarea>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+          <div class="vocab-detail-label" style="margin-bottom:0;font-size:.58rem">IN ENGLISH</div>
+          <button class="copy-btn" onclick="toggleDefEdit('exEng','${keyEsc}')">✎</button>
+        </div>
+        <div id="vd-exEng-view" style="font-size:.82rem;color:rgba(196,181,253,.5);line-height:1.8;white-space:pre-wrap;font-style:italic;min-height:18px">${exEngFallback||'<span style="font-size:.75rem;color:rgba(196,181,253,.2);font-style:italic">click ✎ to add</span>'}</div>
+        <textarea id="vd-exEng-edit" class="enc-add-input" style="display:none;width:100%;resize:vertical;min-height:70px;line-height:1.6;font-size:.82rem">${exEngFallback||''}</textarea>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderVocab(){
+  const el=document.getElementById('vocab-list');
+  const detailEl=document.getElementById('vocab-detail');
+  const vocab=DATA.vocabulary||[];
+  if(!vocab.length){ el.innerHTML='<div class="vocab-empty">No vocabulary entries yet.</div>'; detailEl.style.display='none'; return; }
+  const q=(document.getElementById('vocab-search')?.value||'').toLowerCase();
+  const filtered=vocab.filter(v=>{
+    const matchCat=vocabCat==='All'||v.category===vocabCat;
+    const matchQ=!q||v.word.toLowerCase().includes(q)||(v.english||'').toLowerCase().includes(q)||(v.meaning||'').toLowerCase().includes(q)||v.category.toLowerCase().includes(q);
+    return matchCat&&matchQ;
+  });
+  if(!filtered.length){ el.innerHTML='<div class="vocab-empty">No words match.</div>'; detailEl.style.display='none'; return; }
+
+  let selectedEntry=null;
+  el.innerHTML='<div class="vocab-grid">'+filtered.map((v)=>{
+    const color=CAT_COLORS[v.category]||'#a78bfa';
+    const k=v.word+'-'+DATA.vocabulary.indexOf(v);
+    const isSelected=vocabSelectedKey===k;
+    if(isSelected) selectedEntry={v,color,key:k};
+    const glyphs=vocabGlyphRow(v.word,20);
+    const wc=(v.word||'').replace(/^꩜\s*/,'');
+    const inner=`<div style="display:flex;flex-direction:column;height:100%;justify-content:space-between;">
+      <div>
+        <div class="vocab-cat-label" style="color:${color};margin-bottom:4px">${(v.category||'').toUpperCase()}</div>
+        <div class="vocab-word" style="text-shadow:0 0 16px ${color}44;margin-bottom:2px">${v.word||''}</div>
+        <div class="vocab-glyph-row" style="pointer-events:none">${glyphs}</div>
+        <div class="vocab-meaning">${v.english||v.meaning||''}</div>
+      </div>
+      <div class="vocab-hint">${isSelected?'tap to close':'tap for details'}</div>
+    </div>`;
+    return `<div class="vocab-card${isSelected?' selected':''}" style="border-color:${isSelected?color+'66':'rgba(167,139,250,0.1)'}" onclick="selectVocabWord('${k}',event)">${inner}</div>`;
+  }).join('')+'</div>';
+
+  if(selectedEntry){
+    detailEl.style.display='block';
+    detailEl.innerHTML=renderVocabDetail(selectedEntry.v, selectedEntry.color, selectedEntry.key);
+  } else {
+    detailEl.style.display='none';
+    detailEl.innerHTML='';
+  }
+}
+
+// ── Legend ─────────────────────────────────────────────────
+function renderLegend(){
+  const el=document.getElementById('legend');
+  el.innerHTML=Object.entries(TYPE_COLORS).map(([,c])=>`
+    <div class="legend-pill" style="border:1px solid ${c.base}44;color:${c.base};background:${c.base}11;">${c.label}</div>`).join('');
+}
+
+// ── Meta ────────────────────────────────────────────────────
+function renderMeta(){
+  const m=DATA.meta||{};
+  if(m.name) document.title=m.name+' — Glyph System';
+  document.getElementById('site-sub').textContent=m.description||'';
+  document.getElementById('footer').textContent=
+    `✦ ${(m.name||'').toUpperCase()} · ${(m.creator||'').toUpperCase()} ✦`;
+}
+
+// ── Toast ────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ── Copy helper ──────────────────────────────────────────────
+function copyToClipboard(text){
+  (navigator.clipboard?.writeText(text)||Promise.reject()).then(()=>showToast('Copied ✦')).catch(()=>{
+    const el=document.createElement('textarea');
+    el.value=text;el.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(el);el.select();
+    try{document.execCommand('copy');showToast('Copied ✦');}catch(e){}
+    document.body.removeChild(el);
+  });
+}
+
+// groups: [{svgs:[SVGElement,...], label:string}, ...]
+async function exportGlyphsPNG(groups, filename='anokiirii-glyphs.png'){
+  if(!groups.length){showToast('No glyphs to export');return;}
+  const serial=new XMLSerializer();
+  const scale=3, glyphSize=52, gap=6, groupGap=22, padX=20, padY=18, labelH=22;
+  const loadSVG=svg=>new Promise(res=>{
+    const url=URL.createObjectURL(new Blob([serial.serializeToString(svg)],{type:'image/svg+xml;charset=utf-8'}));
+    const img=new Image();
+    img.onload=()=>{URL.revokeObjectURL(url);res(img);};
+    img.onerror=()=>{URL.revokeObjectURL(url);res(null);};
+    img.src=url;
+  });
+  // load all SVGs
+  for(const g of groups) g.imgs=await Promise.all(g.svgs.map(loadSVG));
+  // measure canvas width
+  const groupWidths=groups.map(g=>Math.max(g.imgs.length*(glyphSize+gap)-gap, 1));
+  const totalW=groupWidths.reduce((s,w)=>s+w,0)+(groups.length-1)*groupGap+padX*2;
+  const totalH=glyphSize+labelH+padY*2;
+  const c=document.createElement('canvas');
+  c.width=totalW*scale; c.height=totalH*scale;
+  const ctx=c.getContext('2d');
+  ctx.scale(scale,scale);
+  // background
+  ctx.fillStyle='#0d0820';
+  ctx.fillRect(0,0,totalW,totalH);
+  // draw groups
+  let gx=padX;
+  for(let gi=0;gi<groups.length;gi++){
+    const g=groups[gi], gw=groupWidths[gi];
+    // glyphs centered in group
+    let ix=gx+(gw-(g.imgs.length*(glyphSize+gap)-gap))/2;
+    for(const img of g.imgs){
+      if(img) ctx.drawImage(img,ix,padY,glyphSize,glyphSize);
+      ix+=glyphSize+gap;
+    }
+    // label
+    if(g.label){
+      ctx.font=`500 11px 'Segoe UI',sans-serif`;
+      ctx.fillStyle='rgba(196,181,253,0.5)';
+      ctx.textAlign='center';
+      ctx.fillText(g.label, gx+gw/2, padY+glyphSize+16);
+    }
+    gx+=gw+groupGap;
+  }
+  c.toBlob(blob=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=filename; a.click();
+    showToast('Saved as PNG ✦');
+  },'image/png');
+}
+
+// helpers that collect glyphs from a container element
+function glyphGroupsFromEl(el){
+  // each .enc-glyph-group or .vocab-detail-glyphs becomes one group
+  const groups=[];
+  const grpEls=el.querySelectorAll('.enc-glyph-group');
+  if(grpEls.length){
+    grpEls.forEach(g=>{
+      const svgs=Array.from(g.querySelectorAll('svg'));
+      const lbl=g.querySelector('.enc-glyph-lbl')?.textContent||'';
+      if(svgs.length) groups.push({svgs,label:lbl});
+    });
+  } else {
+    // flat container (vocab detail, name writer) — one group, no label
+    const svgs=Array.from(el.querySelectorAll('svg'));
+    if(svgs.length) groups.push({svgs,label:''});
+  }
+  return groups;
+}
+
+function exportGlyphsFromEl(elOrId, filename){
+  const el=typeof elOrId==='string'?document.getElementById(elOrId):elOrId;
+  if(!el) return;
+  exportGlyphsPNG(glyphGroupsFromEl(el), filename);
+}
+
+// ── Encoder / Decoder ────────────────────────────────────────
+let encMode='encode';
+let encSelectedMiss=null;
+
+function encSetMode(m){
+  encMode=m;
+  document.getElementById('enc-btn-encode').classList.toggle('active',m==='encode');
+  document.getElementById('enc-btn-decode').classList.toggle('active',m==='decode');
+  document.getElementById('enc-input-label').textContent=m==='encode'?'ENGLISH INPUT':'ANOKIIRII INPUT';
+  document.getElementById('enc-output-label').textContent=m==='encode'?'ANOKIIRII OUTPUT':'ENGLISH OUTPUT';
+  document.getElementById('enc-input').placeholder=m==='encode'?'Type in English…':'Type in Anokiirii…';
+  document.getElementById('enc-input').value='';
+  encClear();
+}
+
+function encClear(){
+  document.getElementById('enc-output-panel').style.display='none';
+  document.getElementById('enc-add-form').style.display='none';
+  const gs=document.getElementById('enc-glyph-strip');
+  if(gs){gs.innerHTML='';gs.style.display='none';}
+  _lastTranslation='';
+  encSelectedMiss=null;
+}
+
+const escAttr=s=>(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+function encFindByMeaning(eng){
+  const q=eng.toLowerCase().trim();
+  const vocab=(DATA?.vocabulary||[]).filter(v=>v.category!=='Soul Names'&&v.category!=='Names');
+  // match only on the dedicated english field — exact word match
+  return vocab.find(v=>v.english&&v.english.toLowerCase().split(/[\/·,]+/).map(s=>s.trim()).some(s=>s===q))
+    || null;
+}
+
+function encFindByWord(ank){
+  const q=ank.toLowerCase().trim();
+  const vocab=DATA?.vocabulary||[];
+  return vocab.find(v=>v.word&&v.word.toLowerCase().replace(/꩜\s*/,'')===q)||null;
+}
+
+// ── phonology generator ──────────────────────────────────────
+const ENC_CONS=['n','l','w','s','k','h','r','v','sh','zh','m','y','t'];
+const ENC_VOWELS=['a','e','i','o','u'];
+const COMMON=[
+  // common English 2-4 letter words
+  'no','ok','hi','yes','one','two','six','ten','me','we','he','she','us','it','am','are','was','has','can','now','new','old','who','why','how','see','say','get','put','run','big','bad','red','hot','air','art','car','day','end','few','fun','god','job','law','men','oil','sea','son','sun','top','use','way','yet',
+  'the','and','for','are','but','not','you','all','any','can','her','was','one','our','out','day','get','has','him','his','how','its','may','new','now','old','own','say','she','two','use','way','who','did','let','man','put','too','use',
+  'also','back','been','call','come','deal','does','down','each','even','fact','feel','find','from','give','good','have','here','high','into','just','keep','know','last','left','less','like','line','live','long','look','made','make','many','more','most','move','much','must','name','need','next','open','over','part','play','real','same','seem','show','side','some','such','sure','take','tell','than','them','then','they','this','time','turn','used','very','want','well','went','were','what','when','whom','will','with','work','year','your',
+  // common nouns/verbs that could appear as 4-6 letter combos
+  'able','area','away','best','born','both','case','city','cost','days','does','done','door','else','even','ever','face','fall','fast','felt','fill','fire','five','flew','flew','flow','food','form','four','free','full','gave','gets','girl','goes','gone','grew','grow','half','hand','hang','hard','harm','hate','head','hear','held','help','hide','hill','home','hope','hour','huge','hung','hunt','hurt','idea','join','kind','king','knew','land','late','lead','leaf','lean','leap','left','legs','life','lift','link','list','live','load','lone','look','lose','loss','lost','loud','love','luck','made','mail','male','mark','mass','mean','meet','melt','menu','mind','mine','miss','mood','more','move','name','near','news','nine','none','noon','note','null','once','only','open','oral','page','pain','pale','park','pass','path','peak','pick','pile','plan','play','plea','plus','poet','poll','pond','pool','poor','port','pose','post','pray','prey','pull','push','rain','rank','rare','rate','read','reel','rely','rest','rich','ride','ring','rise','risk','road','role','roll','rose','rule','rush','safe','sale','salt','save','seal','seat','seek','sell','send','sent','shed','ship','shop','sick','sign','site','size','skip','slow','snow','soil','sold','sole','some','song','sort','soul','spin','spot','star','stay','step','stop','suit','swap','tale','tall','task','team','tear','tend','tent','term','test','text','than','they','thin','tidy','tiny','told','toll','tomb','tone','took','tool','town','trek','tree','trip','true','tube','tune','twin','type','ugly','unit','upon','vast','view','vote','wade','wake','walk','wall','warm','warn','wary','wash','wave','weak','wear','week','weld','went','west','wide','wild','wind','wine','wing','wire','wise','wish','wood','wore','worm','worn','wrap','yard','zone',
+];
+
+function randFrom(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+function parseSyllablesFromWord(word){
+  const clean=(word||'').replace(/^꩜\s*/,'').toLowerCase();
+  const syls=[];let i=0;
+  while(i<clean.length){
+    let c='';
+    if(i<clean.length-1&&(clean.slice(i,i+2)==='sh'||clean.slice(i,i+2)==='zh')){c=clean.slice(i,i+2);i+=2;}
+    else if(i<clean.length&&!'aeiou'.includes(clean[i])&&/[a-z]/.test(clean[i])){c=clean[i];i++;}
+    let v='';
+    if(i<clean.length&&'aeiou'.includes(clean[i])){
+      v=clean[i];i++;
+      if(i<clean.length&&clean[i]===clean[i-1]){v+=clean[i];i++;}
+    }
+    let e='';
+    if(i<clean.length&&(clean[i]==='n'||clean[i]==='m')&&(i+1>=clean.length||!'aeiou'.includes(clean[i+1]))){e=clean[i];i++;}
+    if(c||v||e)syls.push(c+v+e);
+  }
+  return syls;
+}
+
+function parseWordToPhonemes(word){
+  if(!DATA)return[];
+  const clean=(word||'').replace(/^꩜\s*/,'').toLowerCase().trim();
+  const soundIds=new Set((DATA.sounds||[]).map(s=>s.id));
+  const phonemes=[];let i=0;
+  while(i<clean.length){
+    if(i<clean.length-1){const di=clean.slice(i,i+2);if(soundIds.has(di)){phonemes.push(di);i+=2;continue;}}
+    if(soundIds.has(clean[i]))phonemes.push(clean[i]);
+    i++;
+  }
+  return phonemes;
+}
+
+function encFindCompound(eng){
+  const word=eng.toLowerCase().replace(/[^a-z\s]/g,'').trim();
+  const parts=word.split(/\s+/);
+  if(parts.length>=2){
+    const h1=encFindByMeaning(parts[0]),h2=encFindByMeaning(parts.slice(1).join(' '));
+    if(h1&&h2)return[h1,h2];
+  }
+  for(let j=2;j<=word.length-2;j++){
+    const h1=encFindByMeaning(word.slice(0,j)),h2=encFindByMeaning(word.slice(j));
+    if(h1&&h2)return[h1,h2];
+  }
+  return null;
+}
+
+// Common morpheme splits to try even when words aren't in vocab yet
+const COMPOUND_SPLITS=[
+  // reflexive pronouns
+  ['him','self'],['her','self'],['your','self'],['my','self'],['it','self'],
+  ['them','selves'],['our','selves'],['your','selves'],['him','self'],
+  // common compound patterns
+  ['some','thing'],['any','thing'],['every','thing'],['no','thing'],
+  ['some','one'],['any','one'],['every','one'],['no','one'],
+  ['some','where'],['any','where'],['every','where'],['no','where'],
+  ['some','how'],['any','how'],
+  ['sun','light'],['moon','light'],['star','light'],['day','light'],
+  ['over','come'],['over','look'],['over','flow'],['over','whelm'],
+  ['under','stand'],['under','line'],['under','take'],['under','world'],
+  ['heart','break'],['heart','ache'],['heart','felt'],
+  ['life','time'],['day','time'],['night','time'],['some','time'],
+  ['with','out'],['with','in'],['with','stand'],
+  ['out','side'],['in','side'],['out','come'],['out','run'],
+  ['up','lift'],['up','on'],['up','ward'],
+  ['down','fall'],['down','ward'],['down','stream'],
+  ['back','ground'],['fore','ground'],['fore','tell'],['fore','see'],
+  ['be','long'],['be','come'],['be','lieve'],['be','hold'],['be','yond'],
+  ['break','through'],['break','down'],
+  ['dream','land'],['home','land'],['heart','land'],
+  ['birth','day'],['birth','place'],['birth','right'],
+  ['cross','road'],['cross','roads'],
+  ['every','day'],['some','day'],
+  ['any','more'],['any','way'],
+  ['never','more'],['never','mind'],
+  ['water','fall'],['water','way'],
+  ['fire','light'],['fire','side'],
+  ['wind','fall'],['wind','ward'],
+  ['sky','line'],['shore','line'],['time','line'],
+  ['self','less'],['self','ish'],
+  ['end','less'],['hope','less'],['fear','less'],['sleep','less'],['breath','less'],
+  ['care','ful'],['hope','ful'],['wonder','ful'],['grate','ful'],['peace','ful'],
+  ['for','give'],['for','get'],['for','bid'],['for','ever'],['for','ward'],
+  ['re','turn'],['re','member'],['re','mind'],['re','store'],['re','born'],
+  ['un','known'],['un','seen'],['un','told'],['un','broken'],['un','bound'],
+];
+
+function encFindPotentialCompound(eng){
+  const word=eng.toLowerCase().replace(/[^a-z]/g,'').trim();
+  // check hardcoded splits first
+  for(const[a,b] of COMPOUND_SPLITS){
+    if(word===a+b){
+      const h1=encFindByMeaning(a),h2=encFindByMeaning(b);
+      return{partA:a,partB:b,vocabA:h1||null,vocabB:h2||null};
+    }
+  }
+  // also try space-separated input
+  const parts=eng.toLowerCase().replace(/[^a-z\s]/g,'').trim().split(/\s+/);
+  if(parts.length===2){
+    const h1=encFindByMeaning(parts[0]),h2=encFindByMeaning(parts[1]);
+    if(h1||h2) return{partA:parts[0],partB:parts[1],vocabA:h1||null,vocabB:h2||null};
+  }
+  return null;
+}
+
+function encBlendAnokiirii(v1,v2){
+  const s1=parseSyllablesFromWord(v1.word||''),s2=parseSyllablesFromWord(v2.word||'');
+  if(!s1.length||!s2.length)return null;
+  const take=Math.min(2,Math.ceil(Math.min(s1.length,s2.length)/2));
+  const blended=[...s1.slice(0,take),...s2.slice(-take)].join('');
+  const existing=new Set((DATA?.vocabulary||[]).map(v=>(v.word||'').toLowerCase().replace(/^꩜\s*/,'')));
+  if(existing.has(blended))return null;
+  return{word:blended,pronunciation:encBuildPron(blended),source:[v1,v2],isCompound:true};
+}
+
+function encRenderGlyphStrip(tokenHits){
+  const sounds=DATA?.sounds||[];
+  let _id=0;
+  let h='<div class="enc-glyph-strip" id="enc-glyph-strip-inner">';
+  for(const{word}of tokenHits){
+    const phonemes=parseWordToPhonemes(word);
+    if(!phonemes.length)continue;
+    h+=`<div class="enc-glyph-group">`;
+    h+=`<div class="enc-glyph-phones">`;
+    for(const ph of phonemes){
+      const sound=sounds.find(s=>s.id===ph);
+      if(sound)h+=makeSVG(sound.paths,24,getColor(sound,false),false);
+    }
+    h+=`</div><div class="enc-glyph-lbl">${word}</div></div>`;
+  }
+  h+='<button class="copy-btn" style="align-self:center;margin-left:8px" onclick="exportGlyphsFromEl(\'enc-glyph-strip-inner\',\'anokiirii-translation.png\')">save image</button>';
+  h+='</div>';
+  return h;
+}
+
+function encGenWords(eng){
+  const compound=encFindCompound(eng);
+  const existing=new Set((DATA?.vocabulary||[]).map(v=>(v.word||'').toLowerCase().replace(/^꩜\s*/,'')));
+  const results=[];
+  let blendSucceeded=false;
+  if(compound){
+    const bl=encBlendAnokiirii(compound[0],compound[1]);
+    if(bl){results.push(bl);blendSucceeded=true;}
+  }
+  // if compound found but blend failed (already exists, parse issue, etc.) — still show hint
+  // also check potential splits if no full compound was found
+  if(!blendSucceeded){
+    const pot=encFindPotentialCompound(eng)||(compound?{partA:(compound[0].english||''),partB:(compound[1].english||''),vocabA:compound[0],vocabB:compound[1]}:null);
+    if(pot){
+      if(!pot.vocabA||!pot.vocabB){
+        results.push({isPotential:true,partA:pot.partA,partB:pot.partB,vocabA:pot.vocabA,vocabB:pot.vocabB});
+      } else {
+        // both in vocab but blend failed — generate a manual blend and show it
+        const w1=(pot.vocabA.word||'').replace(/^꩜\s*/,'');
+        const w2=(pot.vocabB.word||'').replace(/^꩜\s*/,'');
+        const s1=parseSyllablesFromWord(w1),s2=parseSyllablesFromWord(w2);
+        if(s1.length&&s2.length){
+          // try different blend amounts until we find one not in vocab
+          for(let take=1;take<=Math.max(s1.length,s2.length);take++){
+            const blended=[...s1.slice(0,take),...s2.slice(-(take))].join('');
+            if(blended&&!existing.has(blended)){
+              results.push({word:blended,pronunciation:encBuildPron(blended),source:[pot.vocabA,pot.vocabB],isCompound:true});
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  const sylCount=Math.min(4,Math.max(2,Math.floor(eng.length/3)+1));
+  let tries=0;
+  while(results.filter(r=>!r.isCompound).length<3&&tries<100){
+    tries++;
+    let word='';
+    for(let i=0;i<sylCount;i++){
+      const last=i===sylCount-1;
+      word+=randFrom(ENC_CONS)+randFrom(ENC_VOWELS)+(last&&Math.random()<.4?(Math.random()<.5?'n':'m'):'');
+    }
+    if(existing.has(word)||COMMON.includes(word)||results.find(r=>r.word===word))continue;
+    results.push({word,pronunciation:encBuildPron(word)});
+  }
+  return results;
+}
+
+function encBuildPron(word){
+  const syls=[];
+  let i=0;
+  while(i<word.length){
+    let c='';
+    if(word[i]==='s'&&word[i+1]==='h'){c='sh';i+=2;}
+    else if(word[i]==='z'&&word[i+1]==='h'){c='zh';i+=2;}
+    else if('nlwskhrvmyt'.includes(word[i])){c=word[i];i++;}
+    let v='';
+    if(i<word.length&&'aeiou'.includes(word[i])){v=word[i];i++;if(i<word.length&&word[i]===v){v+=word[i];i++;}}
+    let e='';
+    if(i<word.length&&(word[i]==='n'||word[i]==='m')&&(i+1>=word.length||!'aeiou'.includes(word[i+1]))){e=word[i];i++;}
+    if(c||v||e) syls.push(c+v+e);
+    else i++; // skip unrecognised character — prevents infinite loop
+  }
+  return syls.length?(syls[0].toUpperCase()+syls.slice(1).join('-')):word.toUpperCase();
+}
+
+let _lastTranslation='';
+
+function encTranslate(){
+  if(!DATA){showToast('Still loading…');return;}
+  const input=document.getElementById('enc-input').value.trim();
+  if(!input)return;
+
+  const outPanel=document.getElementById('enc-output-panel');
+  const outBox=document.getElementById('enc-output');
+  const glyphStrip=document.getElementById('enc-glyph-strip');
+  const missSection=document.getElementById('enc-missing-section');
+  const sugSection=document.getElementById('enc-sug-section');
+  outPanel.style.display='block';
+  sugSection.style.display='none';
+  missSection.style.display='none';
+  document.getElementById('enc-add-form').style.display='none';
+  encSelectedMiss=null;
+
+  const missing=[];
+  let html='';
+  const tokenHits=[];
+
+  if(encMode==='encode'){
+    const tokens=input.match(/[\w']+|[^\w\s]/g)||[];
+    for(const tok of tokens){
+      if(/[^\w']/.test(tok)){html+=tok+' ';continue;}
+      const hit=encFindByMeaning(tok);
+      if(hit){
+        const w=hit.word||'';
+        const clean=w.replace(/^꩜\s*/,'');
+        html+=w.startsWith('꩜')
+          ?`<span class="enc-nm">꩜</span> <span class="enc-hit">${clean}</span> `
+          :`<span class="enc-hit">${w}</span> `;
+        tokenHits.push({label:tok,word:clean});
+      } else {
+        const id=tok.toLowerCase();
+        html+=`<span class="enc-miss" onclick="encSelectMiss('${id}')">${tok}</span> `;
+        if(!missing.includes(id))missing.push(id);
+      }
+    }
+  } else {
+    const tokens=input.toLowerCase().split(/\s+/).filter(Boolean);
+    for(const tok of tokens){
+      const clean=tok.replace(/[^a-z]/g,'');
+      const hit=encFindByWord(clean);
+      html+=hit
+        ?`<span class="enc-hit">${hit.english||hit.meaning||clean}</span> `
+        :`<span class="enc-miss" onclick="encSelectMiss('${clean}')">${clean}</span> `;
+      if(!hit&&clean&&!missing.includes(clean))missing.push(clean);
+    }
+  }
+
+  _lastTranslation=tokenHits.map(t=>t.word).join(' ');
+  const copyBtn=_lastTranslation
+    ?`<button class="copy-btn" style="float:right;margin-bottom:6px" onclick="copyToClipboard(_lastTranslation)">copy</button>`
+    :'';
+  outBox.innerHTML=copyBtn+html;
+
+  if(glyphStrip){
+    if(encMode==='encode'&&tokenHits.length){
+      glyphStrip.innerHTML=encRenderGlyphStrip(tokenHits);
+      glyphStrip.style.display='';
+    } else {
+      glyphStrip.innerHTML='';
+      glyphStrip.style.display='none';
+    }
+  }
+
+  if(missing.length){
+    missSection.style.display='block';
+    document.getElementById('enc-miss-pills').innerHTML=
+      missing.map(w=>`<span class="enc-miss-pill" id="pill-${w}" onclick="encSelectMiss('${w}')">${w}</span>`).join('');
+    // auto-open suggestions when a single word was typed and it's missing
+    const inputWords=(input.match(/[a-z']+/gi)||[]).filter(w=>w.length>0);
+    if(inputWords.length===1&&missing.length===1) setTimeout(()=>encSelectMiss(missing[0]),300);
+  }
+}
+
+function encSelectMiss(word){
+  encSelectedMiss=word;
+  document.querySelectorAll('.enc-miss-pill').forEach(p=>p.classList.toggle('active',p.id==='pill-'+word));
+  const sec=document.getElementById('enc-sug-section');
+  const list=document.getElementById('enc-sug-list');
+  const title=document.getElementById('enc-sug-title');
+  sec.style.display='block';
+  list.innerHTML=`<div class="enc-pulse" style="font-size:.74rem;color:rgba(196,181,253,.4);padding:8px 0;">generating suggestions…</div>`;
+  title.innerHTML=`✦ SUGGESTED WORDS FOR "${word.toUpperCase()}" <button class="enc-cancel-btn" style="margin-left:8px;font-size:.62rem;padding:3px 10px" onclick="encSelectMiss('${word}')">↻ new</button>`;
+  setTimeout(()=>{
+    const sugs=encGenWords(word);
+    if(!sugs.length){list.innerHTML='<div style="color:rgba(196,181,253,.35);font-size:.74rem;padding:6px 0;">Could not generate — try a shorter word.</div>';return;}
+    const vocabOpts=(DATA?.vocabulary||[]).filter(v=>v.category!=='Soul Names'&&v.category!=='Names').map(v=>{
+      const eng=(v.english||v.meaning||'').split(/[\/·,]/)[0].trim();
+      const ank=(v.word||'').replace(/^꩜\s*/,'');
+      return`<option value="${eng}" data-ank="${ank}">`;
+    }).join('');
+    const deriveSection=`<div style="margin-top:18px;border-top:1px solid rgba(167,139,250,.1);padding-top:14px">
+      <div class="enc-sug-title" style="margin-top:0">✦ DERIVE FROM EXISTING WORD</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px" id="enc-derive-rels">
+        ${[['plural','nalu +'],['past','lu +'],['future','ni +'],['negative','kese +'],['reflexive','+ -self'],['compound','blend']].map(([r,lbl])=>`<button class="enc-cancel-btn" style="font-size:.64rem;padding:3px 10px" id="enc-drel-${r}" onclick="encDeriveSelect('${r}','${word}')">${lbl} (${r})</button>`).join('')}
+      </div>
+      <div id="enc-derive-base-row" style="margin-bottom:8px">
+        <div style="font-size:.62rem;color:rgba(196,181,253,.4);letter-spacing:.08em;font-family:'Cinzel',serif;margin-bottom:5px" id="enc-derive-base-label">BASE WORD</div>
+        <input id="enc-derive-base" class="enc-add-input" style="width:100%" placeholder="type an existing word (e.g. our)…" list="enc-derive-base-opts" oninput="encDeriveUpdate('${word}')">
+        <datalist id="enc-derive-base-opts">${vocabOpts}</datalist>
+        <div id="enc-derive-notfound" style="display:none;font-size:.66rem;color:#f87171;margin-top:4px">⚠ not found in vocab — must be an existing word</div>
+      </div>
+      <div id="enc-derive-preview" style="display:none;margin-top:8px;padding:10px 14px;border-radius:10px;background:rgba(88,28,220,.1);border:1px solid rgba(167,139,250,.15);justify-content:space-between;align-items:center;gap:12px">
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:.95rem;color:#e9d5ff;letter-spacing:.05em" id="enc-derive-ank-preview"></div>
+          <div style="font-size:.66rem;color:rgba(196,181,253,.4);margin-top:3px;font-style:italic" id="enc-derive-pron-preview"></div>
+        </div>
+        <button class="enc-add-btn" style="white-space:nowrap" id="enc-derive-add-btn" onclick="">+ add to vocab</button>
+      </div>
+    </div>`;
+    list.innerHTML=sugs.map(s=>{
+      if(s.isPotential){
+        const aLabel=s.vocabA?`<span style="color:#c4b5fd">${(s.vocabA.word||'').replace(/^꩜\s*/,'')} (${s.vocabA.english||''})</span>`:`<span style="color:#fbbf24">"${s.partA}" <span style="font-size:.58rem;opacity:.7">— not in vocab yet</span></span>`;
+        const bLabel=s.vocabB?`<span style="color:#c4b5fd">${(s.vocabB.word||'').replace(/^꩜\s*/,'')} (${s.vocabB.english||''})</span>`:`<span style="color:#fbbf24">"${s.partB}" <span style="font-size:.58rem;opacity:.7">— not in vocab yet</span></span>`;
+        return`<div class="enc-sug-item" style="background:rgba(251,191,36,.06);border-color:rgba(251,191,36,.2)">
+          <div>
+            <span class="enc-sug-tag" style="border-color:rgba(251,191,36,.3);color:rgba(251,191,36,.8)">✦ potential compound</span>
+            <div style="font-size:.78rem;color:rgba(196,181,253,.6);margin-top:6px;line-height:1.8">
+              ${aLabel} + ${bLabel}
+            </div>
+            <div style="font-size:.62rem;color:rgba(196,181,253,.3);margin-top:4px">add both words to unlock a blend suggestion</div>
+          </div>
+        </div>`;
+      }
+      const isComp=s.isCompound&&s.source;
+      const srcStr=isComp?`blend of ${(s.source[0].word||'').replace(/^꩜\s*/,'')} (${s.source[0].english||s.source[0].meaning||''}) · ${(s.source[1].word||'').replace(/^꩜\s*/,'')} (${s.source[1].english||s.source[1].meaning||''})`:''
+      return`<div class="enc-sug-item${isComp?' enc-sug-compound':''}">
+        <div>
+          ${isComp?'<span class="enc-sug-tag">✦ compound blend</span>':''}
+          <div class="enc-sug-word">${s.word}</div>
+          <div class="enc-sug-pron">${s.pronunciation}</div>
+          ${isComp?`<div class="enc-sug-source">${srcStr}</div>`:''}
+        </div>
+        <button class="enc-add-btn" onclick="encOpenAdd('${s.word}','${s.pronunciation}','${word}')">+ add to vocab</button>
+      </div>`;
+    }).join('')+deriveSection;
+  },280);
+}
+
+let encDeriveRel='';
+function encDeriveSelect(rel, word){
+  encDeriveRel=rel;
+  document.querySelectorAll('#enc-derive-rels button').forEach(b=>b.style.borderColor=b.id==='enc-drel-'+rel?'rgba(167,139,250,.7)':'');
+  const baseRow=document.getElementById('enc-derive-base-row');
+  const lbl=document.getElementById('enc-derive-base-label');
+  if(baseRow) baseRow.style.display='block';
+  const labels={plural:'PLURAL OF (optional)',past:'PAST TENSE OF',future:'FUTURE TENSE OF',negative:'NEGATIVE OF',reflexive:'REFLEXIVE OF',compound:'BLEND OF'};
+  if(lbl) lbl.textContent=labels[rel]||'BASE WORD';
+  const base=document.getElementById('enc-derive-base');
+  if(base){base.value='';base.focus();}
+  // show preview immediately with placeholder so user knows it's active
+  const previewEl=document.getElementById('enc-derive-preview');
+  const ankEl=document.getElementById('enc-derive-ank-preview');
+  const pronEl=document.getElementById('enc-derive-pron-preview');
+  const particles={plural:'nalu',past:'lu',future:'ni',negative:'kese',reflexive:'…-eyo',compound:'blend'};
+  if(ankEl) ankEl.textContent=particles[rel]||rel;
+  if(pronEl) pronEl.textContent=rel==='plural'?'add to vocab as-is, or type a base word above':'type a base word above to generate';
+  if(previewEl) previewEl.style.display='flex';
+  encDeriveUpdate(word);
+}
+
+function encDeriveUpdate(word){
+  const input=document.getElementById('enc-derive-base');
+  const previewEl=document.getElementById('enc-derive-preview');
+  const ankEl=document.getElementById('enc-derive-ank-preview');
+  const pronEl=document.getElementById('enc-derive-pron-preview');
+  const addBtn=document.getElementById('enc-derive-add-btn');
+  const notFound=document.getElementById('enc-derive-notfound');
+  if(!input||!encDeriveRel)return;
+  const typed=input.value.trim().toLowerCase();
+  // search by English OR Anokiirii word
+  const baseEntry=typed?(encFindByMeaning(typed)||(DATA?.vocabulary||[]).find(v=>(v.word||'').replace(/^꩜\s*/,'').toLowerCase()===typed)):null;
+  const baseAnk=baseEntry?(baseEntry.word||'').replace(/^꩜\s*/,''):'';
+  if(notFound) notFound.style.display=(typed&&!baseEntry)?'block':'none';
+  const particles={plural:'nalu',past:'lu',future:'ni',negative:'kese'};
+  if(!baseAnk&&!typed&&encDeriveRel!=='plural'){previewEl.style.display='flex';return;}
+  if(!baseAnk&&typed&&encDeriveRel!=='plural'){previewEl.style.display='none';return;}
+  let ankWord='', pronWord='';
+  if(encDeriveRel==='reflexive'){
+    ankWord=baseAnk+'-eyo'; pronWord=encBuildPron(baseAnk)+'·EY-o';
+  } else if(encDeriveRel==='compound'){
+    ankWord=baseAnk; pronWord='pick a second word';
+  } else {
+    const p=particles[encDeriveRel]||'';
+    ankWord=baseAnk?p+' '+baseAnk:p;
+    pronWord=baseAnk?encBuildPron(p)+'-'+encBuildPron(baseAnk):encBuildPron(p)+'…';
+  }
+  if(ankEl) ankEl.textContent=ankWord;
+  if(pronEl) pronEl.textContent=pronWord;
+  previewEl.style.display='flex';
+  if(addBtn) addBtn.onclick=()=>encOpenAdd(ankWord, pronWord, word||encSelectedMiss||'');
+}
+
+function detectVocabCategory(meaning){
+  const m=(meaning||'').toLowerCase().replace(/[^a-z\s]/g,' ').trim();
+  const ws=m.split(/\s+/).filter(Boolean);
+  if(!ws.length)return'';
+  const any=(keys)=>keys.some(k=>ws.some(w=>{
+    const shorter=w.length<k.length?w:k,longer=w.length<k.length?k:w;
+    return shorter.length>=3&&longer.startsWith(shorter)||w===k;
+  }));
+
+  // Pronouns
+  if(any(['pronoun','myself','yourself','himself','herself','themselves','oneself','reflexive']))return'Pronouns';
+  if(ws.some(w=>['i','me','my','mine','you','your','yours','he','him','his','she','her','hers','they','them','their','theirs','we','us','our','ours','its','it','who','whom','whose','this','that','these','those'].includes(w)))return'Pronouns';
+
+  // Time
+  if(any(['yesterday','today','tomorrow','morning','afternoon','evening','midnight','moment','season','eternity','eternal','transient','fleeting','temporal','second','minute','decade','century','dawn','dusk','instant','duration','interval','rhythm','epoch','spring','summer','autumn','winter','annual','daily','weekly','monthly','yearly','ancient','forever','temporary','sudden','sequential','chronolog','simultaneous']))return'Time';
+  if(ws.some(w=>['now','time','night','hour','day','week','month','year','past','present','future','noon','tonight','always','never','often','sometimes','soon','before','after','during','since','until','while','early','late','once','again'].includes(w)))return'Time';
+
+  // Numbers
+  if(any(['zero','hundred','thousand','million','billion','numeral','digit','quantity','amount','count','measure','calculat','arithmet']))return'Numbers';
+  if(ws.some(w=>['one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','first','second','third','fourth','fifth','last','half','quarter','double','triple','pair','dozen','single','plural','few','many','none','both','all','some','any'].includes(w)))return'Numbers';
+
+  // Greetings
+  if(any(['hello','goodbye','farewell','greet','welcome','sorry','please','thanks','thank','congrat','bless','salut','pardon','excuse','forgive','apolog','condolen']))return'Greetings';
+  if(ws.some(w=>['yes','no','maybe','hi','bye','okay','ok','sure','indeed','absolutely','certainly','definitely'].includes(w)))return'Greetings';
+
+  // Emotions · Dark (before Light — prevents "hopeless" matching "hope")
+  if(any(['hopeless','despair','grief','sadness','loneli','dread','anger','jealous','shame','sorrow','misery','anguish','mourn','devastat','overwhelm','frustrat','heartbreak','heartach','suffer','torment','depress','bereave','lament','wretched','inconsolable','unbearable','agony','resentment','bitterness','spite','envy','regret','remorse','guilt','panic','terror','horror','disgust','revulsion','contempt','abandon','betrayal','humiliat','neglect','reject','isolat','wound','trauma','numb','powerless','helpless','worthless','meaningless']))return'Emotions · Dark';
+  if(ws.some(w=>['fear','hurt','lost','broken','numb','hollow','adrift','missing','void','grieve','hate','hatred','rage','fury','pain','alone','dying','fail','crash','shatter','collapse','bleed','ache','bitter','cold','dark','empty'].includes(w)))return'Emotions · Dark';
+
+  // Emotions · Light
+  if(any(['love','joy','calm','hope','wonder','awe','proud','pride','nostalg','grateful','gratitude','excite','content','inspir','delight','peace','belong','happy','happiness','comfort','bliss','cheer','seren','tender','euphori','elat','uplifted','radiant','warmth','cherish','adore','worship','ecstat','jubil','triumph','fulfill','nurture','compassion','kindness','forgiven','thrive','flourish','lightheart','celebrat','affection','devotion','faith','trust']))return'Emotions · Light';
+  if(ws.some(w=>['warm','safe','moved','free','loved','joyful','hopeful','peaceful','blessed','bright','glow','rise','bloom','whole','pure','still','true','alive','open','clear','healed'].includes(w)))return'Emotions · Light';
+
+  // Emotions · In Between
+  if(any(['restless','curious','wistful','unsure','uncertain','hesitant','melanchol','disconnect','bittersweet','ambivalent','pensive','liminal','introspect','yearn','longing','forlorn','listless','reverie','linger','adrift','contempl','complex','unresolved','searching','suspended','undefined','nostalgic','reflective','transitional','conflicted','detached','numb']))return'Emotions · In Between';
+  if(ws.some(w=>['confused','mixed','between','wondering','drifting','floating','waiting','holding','quiet','small','distant','close','between','somewhere'].includes(w)))return'Emotions · In Between';
+
+  // Body
+  if(any(['anatomy','physical','bodily','corpor','skeleton','muscl','nervous','digest','respirat','circulat','organ','cellular','biolog']))return'Body';
+  if(ws.some(w=>['body','head','face','eye','ear','nose','mouth','lip','tongue','tooth','teeth','throat','neck','shoulder','arm','elbow','wrist','hand','finger','thumb','chest','heart','lung','breath','stomach','belly','back','spine','hip','leg','knee','ankle','foot','toe','feet','skin','bone','blood','vein','muscle','brain','voice','tear','hair','nail','rib','jaw','cheek','brow','palm','heel','calf','thigh','waist','womb','nerve','sweat','pulse','wound','scar','flesh','shadow','tears','lips','eyes','hands','bones','veins','lungs','muscles'].includes(w)))return'Body';
+
+  // Cosmos & Nature
+  if(any(['galaxy','nebula','constellation','celestial','astral','stellar','solar','lunar','cosmic','astronomical','atmosphere','climate','botanical','geology','ecosystem','biodiversity','photosynthesis','evolution','species','organism']))return'Cosmos';
+  if(ws.some(w=>['star','sun','moon','planet','sky','space','universe','light','fire','water','earth','air','wind','storm','rain','snow','ice','cloud','fog','mist','dust','stone','rock','sand','soil','seed','tree','flower','grass','leaf','root','branch','wave','tide','current','river','source','mountain','cave','void','horizon','glow','spark','ash','echo','ocean','sea','lake','forest','desert','island','hill','valley','plain','cliff','coast','shore','stream','spring','pool','flame','ember','frost','thunder','lightning','rainbow','comet','aurora','zenith','abyss','shadow','darkness','nature','wild','earth','sky','sea','land','wood','fire','ice','wind','rain','bloom','grow','decay'].includes(w)))return'Cosmos';
+
+  // Place & Direction
+  if(any(['locat','region','territory','district','province','country','continent','geograph','architect','urban','rural','domestic','destination','navigation','cartograph','topograph']))return'Place';
+  if(ws.some(w=>['place','world','land','ground','city','town','village','home','house','room','door','window','wall','floor','roof','road','path','bridge','border','north','south','east','west','inside','outside','above','below','near','far','center','edge','corner','top','bottom','front','back','side','middle','around','through','across','between','beyond','under','over','along','left','right','up','down','here','there','area','field','square','street','alley','gate','hall','garden','yard','park','market','temple','tower','ruin','map','distance','direction','position','level','surface','layer','space','location','address','territory','zone','boundary','passage','entrance','exit','shelter','camp','settlement','crossroads','horizon'].includes(w)))return'Place';
+
+  // People & Relationships
+  if(any(['friend','family','mother','father','sibling','rival','stranger','beloved','soulmate','lover','partner','parent','ancestor','guardian','relative','enemy','ally','companion','kindred','twin','neighbor','colleague','mentor','apprentice','community','society','tribe','generation','lineage','heritage','kinship','fellowship','brotherhood','sisterhood','relationship','marriage','divorce','orphan','widow','heir','successor']))return'People';
+  if(ws.some(w=>['person','people','human','man','woman','child','baby','boy','girl','adult','elder','son','daughter','brother','sister','husband','wife','king','queen','god','self','crowd','nation','individual','being','soul','kin','one','warrior','healer','artist','wanderer','pilgrim','witness','leader','chief','priest','poet'].includes(w)))return'People';
+
+  // Actions
+  if(m.startsWith('to ')||any(['walk','stand','breathe','dream','protect','speak','listen','create','learn','travel','seek','follow','release','wander','return','dissolve','transform','witness','carry','surrender','embrace','climb','swim','reach','escape','fight','gather','scatter','plant','harvest','weave','carve','mend','restore','awaken','ascend','descend','illuminate','vanish','emerge','expand','contract','settle','anchor','navigate','forge','shape','observe','perceive','communicate','collaborate','negotiate','persuade','inspire','motivate','challenge','conquer','liberate','sacrifice','dedicate','commit','persist','endure','overcome','achieve','accomplish','complete','initiate','continue','repeat','pause','interrupt','resume','accelerate','decelerate']))return'Actions';
+  if(ws.some(w=>['go','see','want','need','wait','find','ask','think','feel','give','make','sleep','eat','drink','run','fly','sing','draw','move','stay','leave','know','show','hear','put','let','try','use','play','say','tell','get','take','come','do','bring','keep','hold','set','turn','help','call','work','start','stop','end','write','read','watch','look','touch','push','pull','throw','catch','cut','fill','jump','hit','kick','wash','clean','fix','cook','heal','hurt','hide','buy','sell','send','grow','choose','decide','believe','remember','forget','teach','study','laugh','cry','smile','dance','pray','sit','rise','fall','open','close','break','build','speak','ponder','receive','write','remember','forget','reach','mourn','drift','burn','fade','break','hold','orbit','soar','flow','bloom','scatter','echo','fade','spark'].includes(w)))return'Actions';
+
+  // Descriptors
+  if(any(['sharp','bright','quiet','vast','heavy','gentle','fragile','beautiful','strong','strange','honest','sacred','luminous','boundless','endless','silent','dense','ephemeral','fleeting','timeless','ageless','veiled','radiant','vivid','vibrant','stark','subtle','invisible','elastic','rigid','smooth','rough','gradual','swift','constant','variable','mortal','divine','mundane','precious','worthless','unique','familiar','foreign','natural','artificial','original','essential','trivial','profound','shallow','obvious','symbolic','illusory','transparent','opaque','finite','infinite','absolute','relative','universal','particular','temporary','permanent','reversible','irreversible']))return'Descriptors';
+  if(ws.some(w=>['good','bad','right','wrong','true','false','real','fake','big','small','long','short','high','low','wide','narrow','thick','thin','fast','slow','strong','weak','hard','soft','hot','cold','loud','quiet','clean','dirty','full','empty','free','safe','dangerous','alive','dead','young','old','new','simple','complex','clear','whole','broken','pure','wild','tame','ordinary','possible','impossible','enough','dark','deep','still','open','raw','bold','bare','dim','flat','round','warm','cool','dull','heavy','light','sharp','bright','great','little','plain','perfect','solid','hollow','faint','lost','far','near','wide','narrow','long','short','smooth','rough','loud','slow','fast'].includes(w)))return'Descriptors';
+
+  // Concepts & Abstract
+  if(any(['concept','abstract','philosoph','metaphys','existential','consciousness','awareness','perception','reality','illusion','paradox','duality','unity','harmony','entropy','infinity','logic','intuition','language','narrative','archetyp','symbol','myth','ritual','spiritual','material','universal','collective','justice','freedom','virtue','karma','fate','destiny','chaos','creation','destruction','transformation','rebirth','enlightenment','transcendence','immanence','causality','temporality','mortality','divinity','sovereignty','legacy','heritage','tradition','culture','civilization','ideology','doctrine','principle','theory','hypothesis','axiom','theorem']))return'Concepts';
+  if(ws.some(w=>['idea','thought','word','story','truth','lie','question','answer','reason','cause','effect','rule','law','choice','chance','risk','limit','power','force','order','chaos','balance','change','cycle','pattern','form','shape','color','sound','smell','taste','feeling','memory','vision','sign','symbol','meaning','value','belief','faith','doubt','knowledge','wisdom','ignorance','secret','mystery','wonder','destiny','purpose','beginning','end','life','death','birth','growth','decay','identity','name','essence','spirit','mind','will','dream','nature','time','space','energy','matter','void','infinite','finite','soul','self','truth','beauty','good','evil'].includes(w)))return'Concepts';
+
+  // Journal & Connectives
+  if(any(['because','although','therefore','reflect','transition','thus','journal','diary','record','observe','contempl','meanwhile','furthermore','moreover','consequently','nevertheless']))return'Journal';
+  if(ws.some(w=>['and','but','also','with','though','if','when','so','then','yet','while','since','until','unless','whether','however','hence','instead','otherwise'].includes(w)))return'Journal';
+
+  // Grammar
+  if(any(['grammar','tense','plural','particle','negat','prefix','suffix','conjugat','syntax','morphol','declension']))return'Grammar';
+
+  // Soul Names / Names
+  if(any(['soul name','yang','yin','language']))return'Soul Names';
+  if(any(['proper','noun']))return'Names';
+
+  // vocab fallback
+  if(typeof DATA!=='undefined'&&DATA.vocabulary){
+    const hit=DATA.vocabulary.find(v=>{
+      const vm=(v.meaning||'').toLowerCase().replace(/[^a-z\s]/g,' ').split(/\s+/).filter(w=>w.length>3);
+      return ws.some(w=>w.length>3&&(vm.includes(w)||vm.some(vw=>vw.startsWith(w)||w.startsWith(vw))));
+    });
+    if(hit&&hit.category)return hit.category;
+  }
+  return '';
+}
+
+const FORM_DEFS=[
+  {id:'plural',  particle:'nalu', pos:'before', label:'PLURAL',   display:w=>`nalu ${w}`},
+  {id:'past',    particle:'lu',   pos:'before', label:'PAST',     display:w=>`lu ${w}`},
+  {id:'future',  particle:'ni',   pos:'before', label:'FUTURE',   display:w=>`ni ${w}`},
+  {id:'negative',particle:'kese', pos:'before', label:'NEGATIVE', display:w=>`kese ${w}`},
+  {id:'question',particle:'-kel', pos:'after',  label:'QUESTION', display:w=>`${w}-kel`},
+];
+
+const FORM_DEFAULTS={
+  'Actions':       ['past','future','negative'],
+  'Emotions · Light':  ['negative'],
+  'Emotions · Dark':   ['negative'],
+  'Emotions · In Between':[],
+  'Descriptors':   ['negative'],
+  'People':        ['plural'],
+  'Body':          ['plural'],
+  'Cosmos':        ['plural'],
+  'Place':         ['plural'],
+  'Concepts':      ['plural'],
+  'Time':          [],
+  'Numbers':       ['plural'],
+};
+
+function autoCheckForms(cat){
+  const defaults=FORM_DEFAULTS[cat]||[];
+  FORM_DEFS.forEach(f=>{
+    const el=document.getElementById('enc-form-'+f.id)||document.getElementById('edit-form-'+f.id);
+    if(el) el.checked=defaults.includes(f.id);
+  });
+}
+
+function getCheckedForms(prefix='enc-form'){
+  return FORM_DEFS.map(f=>f.id).filter(id=>document.getElementById(prefix+'-'+id)?.checked);
+}
+
+function renderWordForms(v, color){
+  const forms=v.forms||[];
+  if(!forms.length)return'';
+  const word=(v.word||'').replace(/^꩜\s*/,'');
+  return`<div class="vocab-detail-section">
+    <div class="vocab-detail-label">FORMS</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+      ${forms.map(fid=>{
+        const fd=FORM_DEFS.find(f=>f.id===fid);
+        if(!fd)return'';
+        return`<div class="word-form-pill" style="border-color:${color}33;cursor:pointer" title="click to remove" onclick="removeWordForm(${DATA.vocabulary.indexOf(v)},'${fid}')">
+          <div class="word-form-label">${fd.label} <span style="opacity:.4;font-size:.5rem">✕</span></div>
+          <div class="word-form-text" style="color:${color}">${fd.display(word)}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+const RELATIONSHIP_TYPES=[
+  {id:'rel-plural',   label:'plural form',    hint:'e.g. cats → cat'},
+  {id:'rel-reflexive',label:'reflexive form', hint:'e.g. herself → her'},
+  {id:'rel-compound', label:'compound word',  hint:'e.g. sunshine → sun + shine'},
+  {id:'rel-past',     label:'past tense',     hint:'e.g. walked → walk'},
+  {id:'rel-gerund',   label:'gerund / -ing',  hint:'e.g. running → run'},
+  {id:'rel-agent',    label:'doer / -er',     hint:'e.g. teacher → teach'},
+  {id:'rel-diminutive',label:'diminutive',    hint:'e.g. kitten → kit'},
+  {id:'rel-other',    label:'other derived form', hint:''},
+];
+
+function detectRelatedWord(eng){
+  const lower=eng.toLowerCase().replace(/[^a-z]/g,'');
+  if(!lower||lower.length<4)return null;
+  const vocab=(DATA?.vocabulary||[]).filter(v=>v.category!=='Soul Names'&&v.category!=='Names');
+
+  // 1. compound split check
+  const pot=encFindPotentialCompound(eng);
+  if(pot&&(pot.vocabA||pot.vocabB))return{type:'compound',pot,base:pot.vocabA||pot.vocabB};
+
+  // 2. prefix match — find longest vocab word that starts this word
+  let best=null,bestLen=0;
+  for(const v of vocab){
+    const meanings=(v.english||'').toLowerCase().split(/[\/·,\s]+/).map(s=>s.replace(/[^a-z]/g,''));
+    for(const m of meanings){
+      if(m.length>=3&&lower.startsWith(m)&&lower!==m&&m.length>bestLen){
+        best=v; bestLen=m.length;
+      }
+    }
+  }
+  if(best)return{type:'prefix',base:best,matched:best.english};
+  return null;
+}
+
+function showRelatedDetect(eng){
+  const sec=document.getElementById('enc-related-detect');
+  const msg=document.getElementById('enc-related-msg');
+  const formsEl=document.getElementById('enc-related-forms');
+  if(!sec)return;
+  const rel=detectRelatedWord(eng);
+  if(!rel){sec.style.display='none';return;}
+
+  const baseWord=(rel.base.word||'').replace(/^꩜\s*/,'');
+  const baseEng=rel.base.english||rel.base.meaning||'';
+
+  if(rel.type==='compound'&&rel.pot){
+    const{partA,partB,vocabA,vocabB}=rel.pot;
+    const aStr=vocabA?`<strong style="color:#e9d5ff">${(vocabA.word||'').replace(/^꩜\s*/,'')}</strong> (${vocabA.english||''})`:`"${partA}"`;
+    const bStr=vocabB?`<strong style="color:#e9d5ff">${(vocabB.word||'').replace(/^꩜\s*/,'')}</strong> (${vocabB.english||''})`:`"${partB}"`;
+    msg.innerHTML=`<em style="color:#c4b5fd">"${eng}"</em> looks like a compound of ${aStr} + ${bStr}`;
+  } else {
+    msg.innerHTML=`<em style="color:#c4b5fd">"${eng}"</em> looks like it's derived from <strong style="color:#e9d5ff">${baseWord}</strong> <span style="color:rgba(196,181,253,.5)">(${baseEng})</span> — what's the relationship?`;
+  }
+
+  // guess likely relationships
+  const engL=eng.toLowerCase();
+  const guessed=new Set();
+  if(rel.type==='compound') guessed.add('rel-compound');
+  if(/s$/.test(engL)&&!/ss$/.test(engL)) guessed.add('rel-plural');
+  if(/self$|selves$/.test(engL)) guessed.add('rel-reflexive');
+  if(/ed$/.test(engL)) guessed.add('rel-past');
+  if(/ing$/.test(engL)) guessed.add('rel-gerund');
+  if(/er$/.test(engL)) guessed.add('rel-agent');
+
+  formsEl.innerHTML=RELATIONSHIP_TYPES.map(r=>`<label class="form-check-lbl" title="${r.hint}"><input type="checkbox" id="${r.id}"${guessed.has(r.id)?' checked':''}> ${r.label}</label>`).join('');
+  sec.style.display='block';
+}
+
+function getCheckedRelationships(){
+  return RELATIONSHIP_TYPES.map(r=>r.id).filter(id=>document.getElementById(id)?.checked)
+    .map(id=>RELATIONSHIP_TYPES.find(r=>r.id===id)?.label||id);
+}
+
+function checkDupeWord(val){
+  const w=val.trim().toLowerCase();
+  const dupe=w&&(DATA?.vocabulary||[]).some(v=>(v.word||'').toLowerCase().replace(/^꩜\s*/,'')===w);
+  const el=document.getElementById('enc-add-dupe');
+  const input=document.getElementById('enc-add-word');
+  if(el) el.style.display=dupe?'block':'none';
+  if(input) input.style.borderColor=dupe?'rgba(248,113,113,.6)':'';
+}
+
+function encOpenAdd(word,pron,english){
+  const f=document.getElementById('enc-add-form');
+  document.getElementById('enc-add-title').textContent=`Add "${word}" to vocabulary`;
+  document.getElementById('enc-add-word').value=word;
+  document.getElementById('enc-add-pron').value=pron;
+  document.getElementById('enc-add-english').value=english;
+  const cat=detectVocabCategory(english);
+  document.getElementById('enc-add-cat').value=cat;
+  autoCheckForms(cat);
+  showRelatedDetect(english);
+  f.style.display='block';
+  f.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function encCloseAdd(){ document.getElementById('enc-add-form').style.display='none'; }
+
+function encSaveWord(){
+  const word=document.getElementById('enc-add-word').value.trim();
+  const english=document.getElementById('enc-add-english').value.trim();
+  const meaning=document.getElementById('enc-add-meaning')?.value.trim()||'';
+  const pronunciation=document.getElementById('enc-add-pron').value.trim();
+  const category=document.getElementById('enc-add-cat').value.trim()||detectVocabCategory(english)||'Uncategorised';
+  if(!word||!english){showToast('Anokiirii word and English translation are required');return;}
+  const forms=getCheckedForms('enc-form');
+  const relationships=getCheckedRelationships();
+  const rel=detectRelatedWord(english);
+  const derivedFrom=rel?((rel.base?.english||'')):null;
+  if(!DATA.vocabulary) DATA.vocabulary=[];
+  DATA.vocabulary.push({word,english,meaning,pronunciation,category,forms,...(relationships.length?{relationships}:{}),...(derivedFrom?{derivedFrom}:{})});
+  try{localStorage.setItem('anokiirii_vocab_additions',JSON.stringify(DATA.vocabulary));}catch(e){}
+  encCloseAdd();
+  document.getElementById('enc-sug-section').style.display='none';
+  encSelectedMiss=null;
+  document.querySelectorAll('.enc-miss-pill').forEach(p=>p.classList.remove('active'));
+  showToast(`"${word}" added ✦`);
+  renderVocabCats();
+  renderVocab();
+  fetchOneDefinition(english);
+}
+
+function encDownloadJSON(){
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='anokiirii-data.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Grammar ─────────────────────────────────────────────────
+const GRAMMAR_SECTIONS = [];
+
+let gramFlipped = {};
+
+function renderGrammar() {
+  const el = document.getElementById('grammar-content');
+  if (!el) return;
+  let html = '';
+  GRAMMAR_SECTIONS.forEach((sec, si) => {
+    html += `<div class="gram-section">
+      <div class="gram-section-title">${sec.title}</div>
+      <div class="gram-section-sub">${sec.sub}</div>
+      <div class="gram-rule-pill">${sec.pill}</div>
+      <div class="gram-cards">`;
+    sec.cards.forEach((card, ci) => {
+      const key = `${si}-${ci}`;
+      const flipped = gramFlipped[key];
+      const ankEsc=card.ank.replace(/'/g,"\\'");
+      if (flipped) {
+        html += `<div class="gram-card flipped" onclick="gramFlip('${key}')">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px;">
+            <div class="gram-ank">${card.ank}</div>
+            <button class="copy-btn" style="flex-shrink:0;margin-top:2px" onclick="event.stopPropagation();copyToClipboard('${ankEsc}')">copy</button>
+          </div>
+          <div class="gram-reveal">"${card.eng}"</div>
+          <div class="gram-breakdown">${card.breakdown}</div>
+          <div class="gram-hint" style="margin-top:8px">↑ ${card.reveal}</div>
+        </div>`;
+      } else {
+        html += `<div class="gram-card" onclick="gramFlip('${key}')">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px;">
+            <div class="gram-ank">${card.ank}</div>
+            <button class="copy-btn" style="flex-shrink:0;margin-top:2px" onclick="event.stopPropagation();copyToClipboard('${ankEsc}')">copy</button>
+          </div>
+          <div class="gram-eng">${card.eng}</div>
+          <div class="gram-hint">tap to see breakdown</div>
+        </div>`;
+      }
+    });
+    html += `</div>`;
+    if (si < GRAMMAR_SECTIONS.length - 1) html += `<hr class="gram-divider">`;
+    html += `</div>`;
+  });
+  el.innerHTML = html;
+}
+
+function gramFlip(key) {
+  gramFlipped[key] = !gramFlipped[key];
+  renderGrammar();
+}
+
+// ── Number Glyphs ────────────────────────────────────────────
+let numSelId = null;
+
+function renderNumbers(){
+  const numbers = DATA.numbers||[];
+  if(!numbers.length) return;
+  const grid = document.getElementById('num-grid');
+  if(!grid) return;
+  let h='';
+  for(const n of numbers){
+    const active = numSelId===n.id;
+    const color = active?'#bbf7d0':'#86efac';
+    h+=`<div class="glyph-card${active?' sel':''}" data-numid="${n.id}">
+      ${makeSVG(n.paths,38,color,active,'-8 -6 76 82')}
+      <div class="glyph-label" style="color:${active?'#f3e8ff':'rgba(196,181,253,0.5)'}">${n.label}</div>
+    </div>`;
+  }
+  grid.innerHTML=h;
+  grid.querySelectorAll('.glyph-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const id=card.dataset.numid;
+      const detail=document.getElementById('num-detail');
+      if(numSelId===id){
+        numSelId=null;
+        detail.style.display='none';
+      } else {
+        numSelId=id;
+        const n=numbers.find(x=>x.id===id);
+        document.getElementById('num-detail-glyph').innerHTML=makeSVG(n.paths,94,'#bbf7d0',true,'-8 -6 76 82');
+        document.getElementById('num-d-label').textContent=n.label;
+        document.getElementById('num-d-name').textContent=n.name||'';
+        document.getElementById('num-d-meaning').textContent=n.meaning||'';
+        document.getElementById('num-d-desc').textContent=n.desc||'';
+        detail.style.display='flex';
+      }
+      renderNumbers();
+    });
+  });
+}
+
+// ── Load & Init ─────────────────────────────────────────────
+makeStars();
+renderLegend();
+document.getElementById('enc-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();encTranslate();}
+});
+document.getElementById('name-glyph-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){e.preventDefault();nameGlyphRender();}
+});
+
+function nameGlyphClear(){
+  document.getElementById('name-glyph-output').style.display='none';
+}
+
+function nameGlyphRender(){
+  const raw=document.getElementById('name-glyph-input').value.trim();
+  if(!raw)return;
+  const sounds=DATA?.sounds||[];
+  const marker=sounds.find(s=>s.id==='nm');
+  const markerColor='#a78bfa';
+
+  // render each name word separately
+  const names=raw.split(/\s+/);
+  let glyphHTML='<div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end">';
+
+  for(const name of names){
+    const phonemes=parseWordToPhonemes(name);
+    if(!phonemes.length)continue;
+    glyphHTML+=`<div style="display:flex;flex-direction:column;align-items:center;gap:6px">`;
+    glyphHTML+=`<div style="display:flex;align-items:center;gap:4px">`;
+    // Hawelu name marker first
+    if(marker) glyphHTML+=makeSVG(marker.paths,46,markerColor,false);
+    // then each phoneme glyph
+    for(const ph of phonemes){
+      const s=sounds.find(s=>s.id===ph);
+      if(s) glyphHTML+=makeSVG(s.paths,46,getColor(s,false),false);
+    }
+    glyphHTML+=`</div>`;
+    glyphHTML+=`<div style="font-family:'Cinzel',serif;font-size:.65rem;color:rgba(196,181,253,.45);letter-spacing:.08em">${name}</div>`;
+    glyphHTML+=`</div>`;
+  }
+  glyphHTML+='</div>';
+
+  // build pronunciation: name marker label + syllables
+  const pronParts=names.map(name=>{
+    const phonemes=parseWordToPhonemes(name);
+    return phonemes.length?encBuildPron(phonemes.join('')):'';
+  }).filter(Boolean);
+  const pronStr=pronParts.length?'hawelu · '+pronParts.join(' · '):'';
+
+  document.getElementById('name-glyph-display').innerHTML=glyphHTML;
+  document.getElementById('name-glyph-display').style.pointerEvents='none';
+  document.getElementById('name-glyph-pron').textContent=pronStr;
+  document.getElementById('name-glyph-copy').style.display='inline-flex';
+  document.getElementById('name-glyph-output').style.display='block';
+}
+
+fetch(DATA_FILE)
+  .then(r=>{ if(!r.ok) throw new Error('Could not load '+DATA_FILE); return r.json(); })
+  .then(data=>{
+    DATA=data;
+    // restore any words added since last JSON export
+    try{
+      const saved=JSON.parse(localStorage.getItem('anokiirii_vocab_additions')||'null');
+      if(saved&&Array.isArray(saved)){
+        const baseWords=new Set((DATA.vocabulary||[]).map(v=>v.word));
+        saved.forEach(v=>{if(!baseWords.has(v.word)){DATA.vocabulary.push(v);}});
+      }
+    }catch(e){}
+    renderMeta();
+    renderGlyphs();
+    renderRules();
+    renderVocabCats();
+    renderVocab();
+    renderGrammar();
+    renderNumbers();
+    fetchDefinitions();
+  })
+  .catch(err=>{
+    document.getElementById('glyph-sections').innerHTML=
+      `<div style="color:rgba(196,181,253,0.5);text-align:center;padding:40px;">
+        <p style="margin-bottom:10px;">Could not load <code>${DATA_FILE}</code>.</p>
+        <p style="font-size:.75rem;">Make sure both files are in the same folder and you're opening the HTML through a local server (not directly from the file system).</p>
+        <p style="font-size:.72rem;margin-top:8px;opacity:.6;">Error: ${err.message}</p>
+      </div>`;
+  });
+</script>
+</body>
+</html>

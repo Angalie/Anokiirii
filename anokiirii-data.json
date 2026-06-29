@@ -1,0 +1,1514 @@
+{
+  "meta": {
+    "name": "Anokiirii",
+    "creator": "Angalie",
+    "description": "25 sounds + number glyphs + 1 name marker ·"
+  },
+  "rules": [
+    {
+      "title": "Rule 1 — Every glyph has one anchor",
+      "body": "A dot that is the ROOT of the symbol. Everything grows from it. Think of it as the star in a constellation."
+    },
+    {
+      "title": "Rule 2 — Vowels vs Consonants are visually distinct",
+      "body": "Vowels = anchor + arc/curve (soft). Consonants = anchor + angular lines (sharp). You can tell them apart at a glance."
+    },
+    {
+      "title": "Rule 3 — Long vowels have a satellite dot",
+      "body": "The long version of any vowel looks identical to its short version, plus a small secondary dot nearby. Short = one dot. Long = two dots."
+    },
+    {
+      "title": "Rule 4 — Anchor position encodes sound height",
+      "body": "Anchor near the TOP = high front sounds (i, ii, sh, y, h). Anchor in the MIDDLE = mid sounds (e, ee, o, r, s, l, k). Anchor at the BOTTOM = deep low sounds (a, u, m, n, v, w)."
+    },
+    {
+      "title": "Rule 5 — Stroke count encodes complexity",
+      "body": "1 stroke = simple open sounds (h, w, y). 2 strokes = mid complexity (k, t, s, l). 3 strokes = complex or dark sounds (r, v, sh, zh, n, m)."
+    },
+    {
+      "title": "Rule 6 — Name-only sounds look foreign",
+      "body": "Name-only consonants only exist for proper nouns. They combine a line AND an arc, mixing the vowel and consonant visual language — marking them as 'not native.'"
+    },
+    {
+      "title": "Rule 7 — The name marker is Hawelu",
+      "body": "Hawelu (anchor) is written BEFORE any proper noun. Its glyph — dot, stem, two rings, splayed base — is completely distinct from all other glyphs. Nothing else in the system looks like it. The name comes from: ha (breath) + we (flow) + lu (deep) — something that holds you while the current moves around you."
+    },
+    {
+      "title": "Rule 8 — Syllable structure",
+      "body": "Most syllables: consonant + vowel (CV). Words can end in N or M only. No consonant clusters. Stress always falls on the first syllable."
+    },
+    {
+      "title": "Rule 9 — Past tense uses the prefix lu",
+      "body": "Place 'lu' before any verb to shift it into the past. Lu already carries the meaning of deep / hidden — something that has already sunk into time. Examples: keluwan (to see) → lu keluwan (saw). naaweli (to love) → lu naaweli (loved). lunasewen (to dream) → lu lunasewen (dreamed). The word lu never changes — it is always placed directly before the verb."
+    },
+    {
+      "title": "Rule 10 — Plurals use the prefix nalu",
+      "body": "Place 'nalu' before any noun to make it plural. Nalu already means two — but it extends to mean many or more than one. Examples: heluwani (star) → nalu heluwani (stars). naawelimi (heart) → nalu naawelimi (hearts). welasenu (friend) → nalu welasenu (friends). Like lu for past tense, nalu never changes — it simply precedes the noun. Quantity words like weni (one) or semii (three) replace nalu when a specific number is needed."
+    },
+    {
+      "title": "Rule 11 — Word order",
+      "body": "Anokiirii follows a Subject → Verb → Object order, with modifiers coming before the word they modify. Time words come first. Examples: naweni nemi lu naaweli nalu heluwani — 'now I loved the stars' (this moment, I, past-love, many-stars). Prefixes lu, ni and kese always sit directly before their verb, never separated."
+    },
+    {
+      "title": "Rule 12 — Future tense uses the prefix ni",
+      "body": "Place 'ni' before any verb to shift it into the future. Ni carries the feeling of soon / approaching — something moving toward you. Examples: naaweli (to love) → ni naaweli (will love). welan (to go) → ni welan (will go). For future negation, stack ni then kese: ni kese welan (will not go)."
+    },
+    {
+      "title": "Rule 13 — Negation uses the prefix kese",
+      "body": "Place 'kese' before any verb to negate it. Kese comes from keseni (no) and kesuna (never). For past negation: lu kese + verb. For future negation: ni kese + verb. Examples: kese naaweli (do not love) · lu kese keluwan (did not see) · ni kese welan (will not go)."
+    },
+    {
+      "title": "Rule 14 — Questions use the suffix -kel",
+      "body": "Add -kel to the very end of any sentence to turn it into a question. Kel comes from nawenikel (if/when) — it opens the sentence into possibility. Examples: wela lu naaweli nemi-kel (did you love me?) · sona kawenii-kel (is he happy?) · wela ni welan-kel (will you go?)."
+    }
+  ],
+  "sounds": [
+    {
+      "id": "a",
+      "label": "a",
+      "type": "vowel",
+      "long": false,
+      "name": "Aavii",
+      "meaning": "Open / Ground",
+      "desc": "Anchor bottom-center, wide arc opening upward like a mouth",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 40
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 40,
+          "r": 16,
+          "sa": 200,
+          "ea": 340
+        }
+      ]
+    },
+    {
+      "id": "aa",
+      "label": "aa",
+      "type": "vowel",
+      "long": true,
+      "name": "Aaavii",
+      "meaning": "Open deep / Longing",
+      "desc": "Same as A + satellite dot to the right",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 40
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 40,
+          "r": 16,
+          "sa": 200,
+          "ea": 340
+        },
+        {
+          "t": "sdot",
+          "cx": 38,
+          "cy": 36
+        }
+      ]
+    },
+    {
+      "id": "e",
+      "label": "e",
+      "type": "vowel",
+      "long": false,
+      "name": "Evra",
+      "meaning": "Middle / Balance",
+      "desc": "Anchor mid-left, tight arc curling inward right",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 16,
+          "cy": 26
+        },
+        {
+          "t": "arc",
+          "cx": 22,
+          "cy": 26,
+          "r": 10,
+          "sa": 150,
+          "ea": 330
+        }
+      ]
+    },
+    {
+      "id": "ee",
+      "label": "ee",
+      "type": "vowel",
+      "long": true,
+      "name": "Eevra",
+      "meaning": "Sustained balance / Calm",
+      "desc": "Same as E + satellite dot above",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 16,
+          "cy": 26
+        },
+        {
+          "t": "arc",
+          "cx": 22,
+          "cy": 26,
+          "r": 10,
+          "sa": 150,
+          "ea": 330
+        },
+        {
+          "t": "sdot",
+          "cx": 16,
+          "cy": 12
+        }
+      ]
+    },
+    {
+      "id": "i",
+      "label": "i",
+      "type": "vowel",
+      "long": false,
+      "name": "Iru",
+      "meaning": "High / Sharp clarity",
+      "desc": "Anchor top-center, single small upward arc — minimal, high",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 14
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 20,
+          "r": 8,
+          "sa": 210,
+          "ea": 330
+        }
+      ]
+    },
+    {
+      "id": "ii",
+      "label": "ii",
+      "type": "vowel",
+      "long": true,
+      "name": "Iiiru",
+      "meaning": "Piercing / Intense feeling",
+      "desc": "Same as I + satellite dot floating above anchor",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 14
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 20,
+          "r": 8,
+          "sa": 210,
+          "ea": 330
+        },
+        {
+          "t": "sdot",
+          "cx": 34,
+          "cy": 8
+        }
+      ]
+    },
+    {
+      "id": "o",
+      "label": "o",
+      "type": "vowel",
+      "long": false,
+      "name": "Oru",
+      "meaning": "Orbit / Connection",
+      "desc": "Anchor mid-center, two arcs forming incomplete ring open at top",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 28
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 28,
+          "r": 13,
+          "sa": 30,
+          "ea": 160
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 28,
+          "r": 13,
+          "sa": 200,
+          "ea": 330
+        }
+      ]
+    },
+    {
+      "id": "oo",
+      "label": "oo",
+      "type": "vowel",
+      "long": true,
+      "name": "Ooruu",
+      "meaning": "Endless orbit / Always",
+      "desc": "Same as O + satellite dot closing the gap at top",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 28
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 28,
+          "r": 13,
+          "sa": 30,
+          "ea": 160
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 28,
+          "r": 13,
+          "sa": 200,
+          "ea": 330
+        },
+        {
+          "t": "sdot",
+          "cx": 24,
+          "cy": 14
+        }
+      ]
+    },
+    {
+      "id": "u",
+      "label": "u",
+      "type": "vowel",
+      "long": false,
+      "name": "Umva",
+      "meaning": "Deep / Hidden",
+      "desc": "Anchor bottom, arc curling downward like a vessel",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 38
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 30,
+          "r": 12,
+          "sa": 20,
+          "ea": 160
+        }
+      ]
+    },
+    {
+      "id": "uu",
+      "label": "uu",
+      "type": "vowel",
+      "long": true,
+      "name": "Uuumva",
+      "meaning": "Submerged / Secret self",
+      "desc": "Same as U + satellite dot below anchor",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 38
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 30,
+          "r": 12,
+          "sa": 20,
+          "ea": 160
+        },
+        {
+          "t": "sdot",
+          "cx": 24,
+          "cy": 48
+        }
+      ]
+    },
+    {
+      "id": "h",
+      "label": "h",
+      "type": "consonant",
+      "name": "Havan",
+      "meaning": "Breath / Threshold",
+      "desc": "Anchor mid, single diagonal line rising right — a breath outward",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 18,
+          "cy": 28
+        },
+        {
+          "t": "line",
+          "x1": 18,
+          "y1": 28,
+          "x2": 40,
+          "y2": 12
+        }
+      ]
+    },
+    {
+      "id": "w",
+      "label": "w",
+      "type": "consonant",
+      "name": "Wavun",
+      "meaning": "Flow / Transition",
+      "desc": "Anchor mid-left, single line sweeping low then rising",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 14,
+          "cy": 22
+        },
+        {
+          "t": "line",
+          "x1": 14,
+          "y1": 22,
+          "x2": 38,
+          "y2": 40
+        }
+      ]
+    },
+    {
+      "id": "y",
+      "label": "y",
+      "type": "consonant",
+      "name": "Yoru",
+      "meaning": "Bridge / Between",
+      "desc": "Anchor top, single line angling down-left",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 30,
+          "cy": 12
+        },
+        {
+          "t": "line",
+          "x1": 30,
+          "y1": 12,
+          "x2": 12,
+          "y2": 40
+        }
+      ]
+    },
+    {
+      "id": "k",
+      "label": "k",
+      "type": "consonant",
+      "name": "Kavan",
+      "meaning": "Sharp / Decisive",
+      "desc": "Anchor mid, two lines forming a sharp V opening right",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 18,
+          "cy": 26
+        },
+        {
+          "t": "line",
+          "x1": 18,
+          "y1": 26,
+          "x2": 40,
+          "y2": 10
+        },
+        {
+          "t": "line",
+          "x1": 18,
+          "y1": 26,
+          "x2": 40,
+          "y2": 42
+        }
+      ]
+    },
+    {
+      "id": "t",
+      "label": "t",
+      "type": "consonant",
+      "name": "Toru",
+      "meaning": "Strike / Moment",
+      "desc": "Anchor top-right, two lines — one down, one diagonal left",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 34,
+          "cy": 12
+        },
+        {
+          "t": "line",
+          "x1": 34,
+          "y1": 12,
+          "x2": 34,
+          "y2": 40
+        },
+        {
+          "t": "line",
+          "x1": 34,
+          "y1": 12,
+          "x2": 12,
+          "y2": 28
+        }
+      ]
+    },
+    {
+      "id": "s",
+      "label": "s",
+      "type": "consonant",
+      "name": "Savii",
+      "meaning": "Soft edge / Whisper",
+      "desc": "Anchor mid-right, two lines diverging left at different angles",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 34,
+          "cy": 26
+        },
+        {
+          "t": "line",
+          "x1": 34,
+          "y1": 26,
+          "x2": 10,
+          "y2": 14
+        },
+        {
+          "t": "line",
+          "x1": 34,
+          "y1": 26,
+          "x2": 14,
+          "y2": 44
+        }
+      ]
+    },
+    {
+      "id": "l",
+      "label": "l",
+      "type": "consonant",
+      "name": "Lavru",
+      "meaning": "Reach / Extend",
+      "desc": "Anchor mid-bottom, two lines — one straight up, one angling upper-right",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 18,
+          "cy": 38
+        },
+        {
+          "t": "line",
+          "x1": 18,
+          "y1": 38,
+          "x2": 18,
+          "y2": 10
+        },
+        {
+          "t": "line",
+          "x1": 18,
+          "y1": 38,
+          "x2": 42,
+          "y2": 16
+        }
+      ]
+    },
+    {
+      "id": "r",
+      "label": "r",
+      "type": "consonant",
+      "name": "Ravun",
+      "meaning": "Return / Orbit",
+      "desc": "Anchor mid, three lines — two splaying and one dropping down",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 26
+        },
+        {
+          "t": "line",
+          "x1": 24,
+          "y1": 26,
+          "x2": 10,
+          "y2": 10
+        },
+        {
+          "t": "line",
+          "x1": 24,
+          "y1": 26,
+          "x2": 42,
+          "y2": 14
+        },
+        {
+          "t": "line",
+          "x1": 24,
+          "y1": 26,
+          "x2": 24,
+          "y2": 46
+        }
+      ]
+    },
+    {
+      "id": "v",
+      "label": "v",
+      "type": "consonant",
+      "name": "Vaavii",
+      "meaning": "Alien / Other",
+      "desc": "Anchor bottom-left, three lines radiating at tight angles upward",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 12,
+          "cy": 40
+        },
+        {
+          "t": "line",
+          "x1": 12,
+          "y1": 40,
+          "x2": 18,
+          "y2": 10
+        },
+        {
+          "t": "line",
+          "x1": 12,
+          "y1": 40,
+          "x2": 30,
+          "y2": 8
+        },
+        {
+          "t": "line",
+          "x1": 12,
+          "y1": 40,
+          "x2": 44,
+          "y2": 22
+        }
+      ]
+    },
+    {
+      "id": "sh",
+      "label": "sh",
+      "type": "consonant",
+      "name": "Shiru",
+      "meaning": "Soft strike / Hush",
+      "desc": "Anchor top-left, arc sweeping right + two downward lines",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 12,
+          "cy": 14
+        },
+        {
+          "t": "arc",
+          "cx": 20,
+          "cy": 14,
+          "r": 10,
+          "sa": 180,
+          "ea": 360
+        },
+        {
+          "t": "line",
+          "x1": 12,
+          "y1": 14,
+          "x2": 18,
+          "y2": 44
+        },
+        {
+          "t": "line",
+          "x1": 30,
+          "y1": 14,
+          "x2": 36,
+          "y2": 44
+        }
+      ]
+    },
+    {
+      "id": "zh",
+      "label": "zh",
+      "type": "consonant",
+      "name": "Zhavan",
+      "meaning": "Dark hum / Depth",
+      "desc": "Anchor bottom-right, arc opening left + two upward lines",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 36,
+          "cy": 40
+        },
+        {
+          "t": "arc",
+          "cx": 28,
+          "cy": 40,
+          "r": 10,
+          "sa": 0,
+          "ea": 180
+        },
+        {
+          "t": "line",
+          "x1": 36,
+          "y1": 40,
+          "x2": 30,
+          "y2": 10
+        },
+        {
+          "t": "line",
+          "x1": 18,
+          "y1": 40,
+          "x2": 12,
+          "y2": 10
+        }
+      ]
+    },
+    {
+      "id": "n",
+      "label": "n",
+      "type": "consonant",
+      "name": "Navru",
+      "meaning": "Resonance / Ending",
+      "desc": "Anchor mid-left, three lines — two parallel right, one dropping down",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 12,
+          "cy": 26
+        },
+        {
+          "t": "line",
+          "x1": 12,
+          "y1": 26,
+          "x2": 40,
+          "y2": 14
+        },
+        {
+          "t": "line",
+          "x1": 12,
+          "y1": 26,
+          "x2": 40,
+          "y2": 26
+        },
+        {
+          "t": "line",
+          "x1": 40,
+          "y1": 26,
+          "x2": 40,
+          "y2": 46
+        }
+      ]
+    },
+    {
+      "id": "m",
+      "label": "m",
+      "type": "consonant",
+      "name": "Mavun",
+      "meaning": "Dark low / Ground hum",
+      "desc": "Anchor bottom-center, three lines spreading upward like roots inverted",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 42
+        },
+        {
+          "t": "line",
+          "x1": 24,
+          "y1": 42,
+          "x2": 10,
+          "y2": 10
+        },
+        {
+          "t": "line",
+          "x1": 24,
+          "y1": 42,
+          "x2": 24,
+          "y2": 10
+        },
+        {
+          "t": "line",
+          "x1": 24,
+          "y1": 42,
+          "x2": 38,
+          "y2": 10
+        }
+      ]
+    },
+    {
+      "id": "g",
+      "label": "g",
+      "type": "name-only",
+      "name": "Gavan",
+      "meaning": "Name-sound only",
+      "desc": "Anchor mid, line left + arc curling back — foreign feel",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 28,
+          "cy": 26
+        },
+        {
+          "t": "line",
+          "x1": 28,
+          "y1": 26,
+          "x2": 10,
+          "y2": 26
+        },
+        {
+          "t": "arc",
+          "cx": 20,
+          "cy": 26,
+          "r": 12,
+          "sa": 180,
+          "ea": 360
+        },
+        {
+          "t": "line",
+          "x1": 28,
+          "y1": 26,
+          "x2": 28,
+          "y2": 44
+        }
+      ]
+    },
+    {
+      "id": "b",
+      "label": "b",
+      "type": "name-only",
+      "name": "Bavan",
+      "meaning": "Name-sound only",
+      "desc": "Anchor top-left, line down + arc bowing right — foreign feel",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 12,
+          "cy": 12
+        },
+        {
+          "t": "line",
+          "x1": 12,
+          "y1": 12,
+          "x2": 12,
+          "y2": 44
+        },
+        {
+          "t": "arc",
+          "cx": 18,
+          "cy": 28,
+          "r": 16,
+          "sa": -70,
+          "ea": 70
+        },
+        {
+          "t": "dot",
+          "cx": 12,
+          "cy": 44
+        }
+      ]
+    },
+    {
+      "id": "th",
+      "label": "th",
+      "type": "name-only",
+      "name": "Thavan",
+      "meaning": "Name-sound only",
+      "desc": "Anchor top-center, wide arc opening downward + short spike up",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 12
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 24,
+          "r": 14,
+          "sa": 20,
+          "ea": 160
+        },
+        {
+          "t": "line",
+          "x1": 24,
+          "y1": 12,
+          "x2": 24,
+          "y2": 4
+        },
+        {
+          "t": "dot",
+          "cx": 24,
+          "cy": 4
+        }
+      ]
+    },
+    {
+      "id": "f",
+      "label": "f",
+      "type": "name-only",
+      "name": "Favan",
+      "meaning": "Name-sound only",
+      "desc": "Anchor mid-right, two arcs curling inward from left",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 32,
+          "cy": 26
+        },
+        {
+          "t": "arc",
+          "cx": 22,
+          "cy": 18,
+          "r": 12,
+          "sa": 0,
+          "ea": 150
+        },
+        {
+          "t": "arc",
+          "cx": 22,
+          "cy": 34,
+          "r": 12,
+          "sa": 210,
+          "ea": 360
+        }
+      ]
+    },
+    {
+      "id": "p",
+      "label": "p",
+      "type": "name-only",
+      "name": "Pavan",
+      "meaning": "Name-sound only",
+      "desc": "Anchor bottom-left, arc curving overhead + spike angling right",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 12,
+          "cy": 42
+        },
+        {
+          "t": "arc",
+          "cx": 20,
+          "cy": 22,
+          "r": 14,
+          "sa": 160,
+          "ea": 360
+        },
+        {
+          "t": "line",
+          "x1": 12,
+          "y1": 42,
+          "x2": 12,
+          "y2": 10
+        },
+        {
+          "t": "line",
+          "x1": 30,
+          "y1": 22,
+          "x2": 42,
+          "y2": 34
+        },
+        {
+          "t": "dot",
+          "cx": 42,
+          "cy": 34
+        }
+      ]
+    },
+    {
+      "id": "d",
+      "label": "d",
+      "type": "name-only",
+      "name": "Davan",
+      "meaning": "Name-sound only",
+      "desc": "Anchor top-right, arc sweeping left + two dropping lines",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 36,
+          "cy": 12
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 20,
+          "r": 14,
+          "sa": -30,
+          "ea": 120
+        },
+        {
+          "t": "line",
+          "x1": 36,
+          "y1": 12,
+          "x2": 28,
+          "y2": 44
+        },
+        {
+          "t": "line",
+          "x1": 36,
+          "y1": 12,
+          "x2": 44,
+          "y2": 40
+        },
+        {
+          "t": "dot",
+          "cx": 28,
+          "cy": 44
+        },
+        {
+          "t": "dot",
+          "cx": 44,
+          "cy": 40
+        }
+      ]
+    },
+    {
+      "id": "x",
+      "label": "x",
+      "type": "name-only",
+      "name": "Xavan",
+      "meaning": "Name-sound only",
+      "desc": "Anchor mid, three spikes fanning right + arc left",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 22,
+          "cy": 26
+        },
+        {
+          "t": "arc",
+          "cx": 16,
+          "cy": 26,
+          "r": 10,
+          "sa": 270,
+          "ea": 90
+        },
+        {
+          "t": "line",
+          "x1": 22,
+          "y1": 26,
+          "x2": 44,
+          "y2": 10
+        },
+        {
+          "t": "line",
+          "x1": 22,
+          "y1": 26,
+          "x2": 44,
+          "y2": 26
+        },
+        {
+          "t": "line",
+          "x1": 22,
+          "y1": 26,
+          "x2": 44,
+          "y2": 42
+        },
+        {
+          "t": "dot",
+          "cx": 44,
+          "cy": 10
+        },
+        {
+          "t": "dot",
+          "cx": 44,
+          "cy": 42
+        }
+      ]
+    },
+    {
+      "id": "c",
+      "label": "c",
+      "type": "name-only",
+      "name": "Cavan",
+      "meaning": "Name-sound only",
+      "desc": "Anchor right, arc opening left + line bisecting it",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 34,
+          "cy": 26
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 26,
+          "r": 14,
+          "sa": -60,
+          "ea": 240
+        },
+        {
+          "t": "line",
+          "x1": 10,
+          "y1": 18,
+          "x2": 34,
+          "y2": 34
+        },
+        {
+          "t": "dot",
+          "cx": 10,
+          "cy": 18
+        }
+      ]
+    },
+    {
+      "id": "q",
+      "label": "q",
+      "type": "name-only",
+      "name": "Qavan",
+      "meaning": "Name-sound only",
+      "desc": "Anchor top-left, partial ring + two long descending spikes",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 16,
+          "cy": 14
+        },
+        {
+          "t": "arc",
+          "cx": 24,
+          "cy": 20,
+          "r": 12,
+          "sa": 180,
+          "ea": 360
+        },
+        {
+          "t": "line",
+          "x1": 16,
+          "y1": 14,
+          "x2": 10,
+          "y2": 46
+        },
+        {
+          "t": "line",
+          "x1": 36,
+          "y1": 14,
+          "x2": 42,
+          "y2": 46
+        },
+        {
+          "t": "dot",
+          "cx": 36,
+          "cy": 14
+        },
+        {
+          "t": "dot",
+          "cx": 10,
+          "cy": 46
+        },
+        {
+          "t": "dot",
+          "cx": 42,
+          "cy": 46
+        }
+      ]
+    },
+    {
+      "id": "z",
+      "label": "z",
+      "type": "name-only",
+      "name": "Zavan",
+      "meaning": "Name-sound only",
+      "desc": "Anchor bottom-right, arc above + two lines going opposite directions",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 36,
+          "cy": 40
+        },
+        {
+          "t": "arc",
+          "cx": 26,
+          "cy": 28,
+          "r": 14,
+          "sa": 30,
+          "ea": 200
+        },
+        {
+          "t": "line",
+          "x1": 36,
+          "y1": 40,
+          "x2": 8,
+          "y2": 20
+        },
+        {
+          "t": "line",
+          "x1": 36,
+          "y1": 40,
+          "x2": 14,
+          "y2": 8
+        },
+        {
+          "t": "dot",
+          "cx": 8,
+          "cy": 20
+        },
+        {
+          "t": "dot",
+          "cx": 14,
+          "cy": 8
+        }
+      ]
+    },
+    {
+      "id": "j",
+      "label": "j",
+      "type": "name-only",
+      "name": "Javan",
+      "meaning": "Name-sound only",
+      "desc": "Anchor top-right, sweeping arc down-left + end dot + upward spike",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 36,
+          "cy": 10
+        },
+        {
+          "t": "arc",
+          "cx": 22,
+          "cy": 26,
+          "r": 18,
+          "sa": -60,
+          "ea": 100
+        },
+        {
+          "t": "line",
+          "x1": 36,
+          "y1": 10,
+          "x2": 42,
+          "y2": 4
+        },
+        {
+          "t": "dot",
+          "cx": 42,
+          "cy": 4
+        },
+        {
+          "t": "dot",
+          "cx": 10,
+          "cy": 38
+        }
+      ]
+    },
+    {
+      "id": "nm",
+      "label": "hawelu",
+      "type": "marker",
+      "name": "Hawelu",
+      "meaning": "Anchor / Name Marker",
+      "desc": "The name marker glyph — written before any proper noun. Its name Hawelu means anchor: ha (breath) + we (flow) + lu (deep). Something that holds you while the current moves around you.",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 26,
+          "cy": 8
+        },
+        {
+          "t": "line",
+          "x1": 26,
+          "y1": 12,
+          "x2": 26,
+          "y2": 54
+        },
+        {
+          "t": "arc",
+          "cx": 26,
+          "cy": 24,
+          "r": 10,
+          "sa": 0,
+          "ea": 359
+        },
+        {
+          "t": "arc",
+          "cx": 26,
+          "cy": 40,
+          "r": 6,
+          "sa": 0,
+          "ea": 359
+        },
+        {
+          "t": "line",
+          "x1": 26,
+          "y1": 54,
+          "x2": 13,
+          "y2": 47
+        },
+        {
+          "t": "line",
+          "x1": 26,
+          "y1": 54,
+          "x2": 39,
+          "y2": 47
+        },
+        {
+          "t": "dot",
+          "cx": 13,
+          "cy": 47
+        },
+        {
+          "t": "dot",
+          "cx": 39,
+          "cy": 47
+        }
+      ]
+    }
+  ],
+  "numbers": [
+    {
+      "id": "0",
+      "label": "0",
+      "type": "number",
+      "name": "Weni",
+      "meaning": "Zero / Nothing",
+      "desc": "No anchor — open circle, emptiness with no point of origin",
+      "paths": [
+        {
+          "t": "path",
+          "d": "M30 12 A22 22 0 1 1 29.9 12"
+        }
+      ]
+    },
+    {
+      "id": "1",
+      "label": "1",
+      "type": "number",
+      "name": "Weni",
+      "meaning": "One",
+      "desc": "One anchor at the base — V shape converging to a single point",
+      "paths": [
+        {
+          "t": "path",
+          "d": "M12 14 C18 32 28 46 30 50"
+        },
+        {
+          "t": "path",
+          "d": "M48 14 C42 32 32 46 30 50"
+        },
+        {
+          "t": "dot",
+          "cx": 30,
+          "cy": 50
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "label": "2",
+      "type": "number",
+      "name": "Nalu",
+      "meaning": "Two",
+      "desc": "Two anchors — open circle with gap, floating dot outside",
+      "paths": [
+        {
+          "t": "path",
+          "d": "M30 10 A20 20 0 1 1 10 30"
+        },
+        {
+          "t": "dot",
+          "cx": 10,
+          "cy": 30
+        },
+        {
+          "t": "dot",
+          "cx": 50,
+          "cy": 52
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "label": "3",
+      "type": "number",
+      "name": "Semii",
+      "meaning": "Three",
+      "desc": "One anchor — small open arc with a floating dot below",
+      "paths": [
+        {
+          "t": "path",
+          "d": "M14 22 C16 10 34 8 38 18 C42 28 34 38 22 36"
+        },
+        {
+          "t": "dot",
+          "cx": 44,
+          "cy": 52
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "label": "4",
+      "type": "number",
+      "name": "Kalunu",
+      "meaning": "Four",
+      "desc": "Two anchors — reverse C arc with two dots flanking the opening",
+      "paths": [
+        {
+          "t": "path",
+          "d": "M46 16 C56 26 56 44 46 54 C38 62 24 60 16 50"
+        },
+        {
+          "t": "dot",
+          "cx": 10,
+          "cy": 26
+        },
+        {
+          "t": "dot",
+          "cx": 10,
+          "cy": 50
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "label": "5",
+      "type": "number",
+      "name": "Hewaani",
+      "meaning": "Five",
+      "desc": "One anchor — smaller reverse C with anchor at the open end",
+      "paths": [
+        {
+          "t": "path",
+          "d": "M40 24 C50 32 48 48 38 54 C28 60 14 54 12 44"
+        },
+        {
+          "t": "dot",
+          "cx": 14,
+          "cy": 20
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "label": "6",
+      "type": "number",
+      "name": "Sulame",
+      "meaning": "Six",
+      "desc": "Two anchors at tips — Y fork converging downward",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 16,
+          "cy": 14
+        },
+        {
+          "t": "dot",
+          "cx": 44,
+          "cy": 14
+        },
+        {
+          "t": "path",
+          "d": "M16 14 C22 28 28 36 30 44"
+        },
+        {
+          "t": "path",
+          "d": "M44 14 C38 28 32 36 30 44"
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "label": "7",
+      "type": "number",
+      "name": "Nawekii",
+      "meaning": "Seven",
+      "desc": "One anchor — spiral inward curl starting from anchor",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 14,
+          "cy": 16
+        },
+        {
+          "t": "path",
+          "d": "M14 16 C32 8 52 20 48 36 C44 50 30 56 18 50 C10 44 12 34 22 32 C30 30 36 38 30 44"
+        }
+      ]
+    },
+    {
+      "id": "8",
+      "label": "8",
+      "type": "number",
+      "name": "Lunasem",
+      "meaning": "Eight",
+      "desc": "Two anchors — double loop figure eight with anchors at start and end",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 12,
+          "cy": 16
+        },
+        {
+          "t": "dot",
+          "cx": 48,
+          "cy": 54
+        },
+        {
+          "t": "path",
+          "d": "M12 16 C30 4 52 12 48 30 C44 46 24 50 18 40 C12 30 20 18 30 20 C40 22 48 34 44 46 C40 58 24 64 12 58"
+        }
+      ]
+    },
+    {
+      "id": "9",
+      "label": "9",
+      "type": "number",
+      "name": "Keniluu",
+      "meaning": "Nine",
+      "desc": "One anchor — full loop with descending tail, anchor at peak",
+      "paths": [
+        {
+          "t": "dot",
+          "cx": 46,
+          "cy": 26
+        },
+        {
+          "t": "path",
+          "d": "M46 26 C52 36 50 50 38 56 C26 62 12 54 12 42 C12 30 22 20 34 20 C46 20 52 28 46 26"
+        },
+        {
+          "t": "path",
+          "d": "M46 26 C50 38 46 54 38 64"
+        }
+      ]
+    }
+  ],
+  "vocabulary": [
+    {
+      "word": "Anokii",
+      "pronunciation": "a-no-KEE",
+      "englishSound": "a like apple · no like no · KEE sharp like key",
+      "meaning": "Yang soul name, bright star, active",
+      "category": "Soul Names"
+    },
+    {
+      "word": "Anorii",
+      "pronunciation": "a-no-REE",
+      "englishSound": "a like apple · no like no · REE held soft like free",
+      "meaning": "Yin soul name, dark moon, receptive",
+      "category": "Soul Names"
+    },
+    {
+      "word": "Anokiirii",
+      "pronunciation": "a-no-kee-REE",
+      "englishSound": "four even beats like breathing: a · no · kee · REE held",
+      "meaning": "The language itself — Anokii + Anorii fused",
+      "category": "Soul Names"
+    },
+    {
+      "word": "Angalie",
+      "pronunciation": "AN-ga-lee",
+      "englishSound": "AN soft + ga soft Korean g + lee like lee",
+      "meaning": "Angalie's name in Anokiirii",
+      "category": "Names"
+    }
+  ]
+}
