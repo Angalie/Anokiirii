@@ -1784,26 +1784,14 @@ function detectVocabCategory(meaning){
 
 const FORM_DEFS=[
   {id:'plural',  particle:'nalu', pos:'before', label:'PLURAL',   display:w=>`nalu ${w}`},
+  {id:'present', particle:'',     pos:'none',   label:'PRESENT',  display:w=>`${w}`},
   {id:'past',    particle:'lu',   pos:'before', label:'PAST',     display:w=>`lu ${w}`},
   {id:'future',  particle:'ni',   pos:'before', label:'FUTURE',   display:w=>`ni ${w}`},
   {id:'negative',particle:'kese', pos:'before', label:'NEGATIVE', display:w=>`kese ${w}`},
   {id:'question',particle:'-kel', pos:'after',  label:'QUESTION', display:w=>`${w}-kel`},
 ];
 
-const FORM_DEFAULTS={
-  'Actions':       ['past','future','negative'],
-  'Emotions · Light':  ['negative'],
-  'Emotions · Dark':   ['negative'],
-  'Emotions · In Between':[],
-  'Descriptors':   ['negative'],
-  'People':        ['plural'],
-  'Body':          ['plural'],
-  'Cosmos':        ['plural'],
-  'Place':         ['plural'],
-  'Concepts':      ['plural'],
-  'Time':          [],
-  'Numbers':       ['plural'],
-};
+const FORM_DEFAULTS={};
 
 function autoCheckForms(cat){
   const defaults=FORM_DEFAULTS[cat]||[];
