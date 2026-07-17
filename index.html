@@ -702,11 +702,19 @@ function selectVocabWord(k, e){
 
 function closeVocabDetail(){ vocabSelectedKey=null; vocabEditingKey=null; renderVocab(); }
 function removeWordForm(idx, formId){
+  toggleWordForm(idx, formId);
+}
+function toggleWordForm(idx, formId){
   const entry=DATA.vocabulary[idx];
   if(!entry)return;
-  entry.forms=(entry.forms||[]).filter(f=>f!==formId);
+  const forms=entry.forms||[];
+  entry.forms=forms.includes(formId)?forms.filter(f=>f!==formId):[...forms,formId];
   try{localStorage.setItem('anokiirii_vocab_additions',JSON.stringify(DATA.vocabulary));}catch(e){}
-  renderVocab();
+  const detailEl=document.getElementById('vocab-detail');
+  if(detailEl&&vocabSelectedKey){
+    const color=CAT_COLORS[entry.category]||'#a78bfa';
+    detailEl.innerHTML=renderVocabDetail(entry,color,vocabSelectedKey);
+  }
 }
 
 function deleteVocabWord(key){
@@ -1457,10 +1465,14 @@ function encTranslate(){
     // English grammar words that get absorbed into Anokiirii prefix system
     const skipWords=new Set(['will','would','shall','going','did','does','do','was','were','have','has','had','is','am','are','been','be','not','never','a','an','the','to','dont',"don't",'doesnt',"doesn't",'didnt',"didn't",'wont',"won't",'cant',"can't",'couldnt',"couldn't",'wouldnt',"wouldn't"]);
 
+    // Only stem in multi-word sentences, not single-word lookups
+    const multiWord=/\s/.test(input.trim());
+
     // Try to find a vocab entry for a word, with stemming fallbacks
     function tryLookup(id){
       let hit=encFindByMeaning(id);
       if(hit)return{hit,wasPlural:false,wasPast:false};
+      if(!multiWord)return null; // single word — exact match only
       // Irregular past
       if(irregPast[id]){hit=encFindByMeaning(irregPast[id]);if(hit)return{hit,wasPlural:false,wasPast:true};}
       // -ed past: loved→love, walked→walk, tried→try
@@ -1807,16 +1819,15 @@ function getCheckedForms(prefix='enc-form'){
 
 function renderWordForms(v, color){
   const forms=v.forms||[];
-  if(!forms.length)return'';
   const word=(v.word||'').replace(/^꩜\s*/,'');
+  const idx=DATA.vocabulary.indexOf(v);
   return`<div class="vocab-detail-section">
     <div class="vocab-detail-label">FORMS</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
-      ${forms.map(fid=>{
-        const fd=FORM_DEFS.find(f=>f.id===fid);
-        if(!fd)return'';
-        return`<div class="word-form-pill" style="border-color:${color}33;cursor:pointer" title="click to remove" onclick="removeWordForm(${DATA.vocabulary.indexOf(v)},'${fid}')">
-          <div class="word-form-label">${fd.label} <span style="opacity:.4;font-size:.5rem">✕</span></div>
+      ${FORM_DEFS.map(fd=>{
+        const active=forms.includes(fd.id);
+        return`<div class="word-form-pill" style="border-color:${active?color+'66':color+'22'};opacity:${active?1:.4};cursor:pointer" title="${active?'click to remove':'click to add'}" onclick="toggleWordForm(${idx},'${fd.id}')">
+          <div class="word-form-label">${fd.label} <span style="opacity:.4;font-size:.5rem">${active?'✕':'+'}</span></div>
           <div class="word-form-text" style="color:${color}">${fd.display(word)}</div>
         </div>`;
       }).join('')}
