@@ -1470,8 +1470,12 @@ function encTranslate(){
 
     // Try to find a vocab entry for a word, with stemming fallbacks
     function tryLookup(id){
+      // Strip possessive 's and flag it
+      let wasPossessive=false;
+      if(id.endsWith("'s")||id.endsWith('’s')){id=id.slice(0,-2);wasPossessive=true;}
+      else if(id.endsWith("s'")||id.endsWith('s’')&&id.length>2){id=id.slice(0,-1);wasPossessive=true;}
       let hit=encFindByMeaning(id);
-      if(hit)return{hit,wasPlural:false,wasPast:false};
+      if(hit)return{hit,wasPlural:false,wasPast:false,wasPossessive};
       if(!multiWord)return null; // single word — exact match only
       // Irregular past
       if(irregPast[id]){hit=encFindByMeaning(irregPast[id]);if(hit)return{hit,wasPlural:false,wasPast:true};}
@@ -1498,12 +1502,12 @@ function encTranslate(){
       if(skipWords.has(id))continue;
       const found=tryLookup(id);
       if(found){
-        const{hit,wasPlural,wasPast}=found;
+        const{hit,wasPlural,wasPast,wasPossessive}=found;
         const isVerb=hit.category==='Actions';
-        const isNoun=['People','Body','Cosmos','Place','Concepts','Numbers','Time','Descriptors'].includes(hit.category);
         const effectiveTense=wasPast?'past':sentTense;
         let prefixes=[];
-        if(isVerb){
+        if(wasPossessive)prefixes=['wa'];
+        else if(isVerb){
           if(effectiveTense==='past'&&sentNeg)prefixes=['lu','kese'];
           else if(effectiveTense==='future'&&sentNeg)prefixes=['ni','kese'];
           else if(effectiveTense==='past')prefixes=['lu'];
