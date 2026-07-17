@@ -1440,22 +1440,91 @@ function encTranslate(){
   const tokenHits=[];
 
   if(encMode==='encode'){
-    const tokens=input.match(/[\w']+|[^\w\s]/g)||[];
-    for(const tok of tokens){
-      if(/[^\w']/.test(tok)){html+=tok+' ';continue;}
-      const hit=encFindByMeaning(tok);
-      if(hit){
-        const w=hit.word||'';
-        const clean=w.replace(/^꩜\s*/,'');
-        html+=w.startsWith('꩜')
-          ?`<span class="enc-nm">꩜</span> <span class="enc-hit">${clean}</span> `
-          :`<span class="enc-hit">${w}</span> `;
-        tokenHits.push({label:tok,word:clean});
-      } else {
-        const id=tok.toLowerCase();
-        html+=`<span class="enc-miss" onclick="encSelectMiss('${id}')">${tok}</span> `;
-        if(!missing.includes(id))missing.push(id);
+    const sentLower=input.toLowerCase();
+    const isQuestion=/\?\s*$/.test(input.trim());
+
+    // Sentence-level tense detection
+    let sentTense='present';
+    if(/\b(will|would|shall|gonna)\b/.test(sentLower)||/\bgoing to\b/.test(sentLower)) sentTense='future';
+    else if(/\b(was|were|did|had|went|saw|came|got|made|knew|thought|took|said|felt|gave|found|told|became|left|ran|fell|grew|kept|led|met|paid|sent|stood|heard|lost|spent|built|held|won|wrote|read)\b/.test(sentLower)) sentTense='past';
+
+    // Sentence-level negation
+    const sentNeg=/\b(not|never)\b|n't\b/.test(sentLower);
+
+    // Irregular past tense → base form map
+    const irregPast={went:'go',saw:'see',came:'come',got:'get',made:'make',knew:'know',thought:'think',took:'take',said:'say',felt:'feel',gave:'give',found:'find',told:'tell',became:'become',left:'leave',ran:'run',fell:'fall',grew:'grow',kept:'keep',led:'lead',met:'meet',paid:'pay',sent:'send',stood:'stand',heard:'hear',lost:'lose',spent:'spend',built:'build',held:'hold',won:'win',wrote:'write',was:'be',were:'be'};
+
+    // English grammar words that get absorbed into Anokiirii prefix system
+    const skipWords=new Set(['will','would','shall','going','did','does','do','was','were','have','has','had','is','am','are','been','be','not','never','a','an','the','to','dont',"don't",'doesnt',"doesn't",'didnt',"didn't",'wont',"won't",'cant',"can't",'couldnt',"couldn't",'wouldnt',"wouldn't"]);
+
+    // Try to find a vocab entry for a word, with stemming fallbacks
+    function tryLookup(id){
+      let hit=encFindByMeaning(id);
+      if(hit)return{hit,wasPlural:false,wasPast:false};
+      // Irregular past
+      if(irregPast[id]){hit=encFindByMeaning(irregPast[id]);if(hit)return{hit,wasPlural:false,wasPast:true};}
+      // -ed past: loved→love, walked→walk, tried→try
+      if(id.endsWith('ed')&&id.length>3){
+        for(const s of[id.slice(0,-2),id.slice(0,-1),id.slice(0,-3)+'y']){hit=encFindByMeaning(s);if(hit)return{hit,wasPlural:false,wasPast:true};}
       }
+      // -ing: loving→love, running→run
+      if(id.endsWith('ing')&&id.length>4){
+        for(const s of[id.slice(0,-3),id.slice(0,-3)+'e']){hit=encFindByMeaning(s);if(hit)return{hit,wasPlural:false,wasPast:false};}
+      }
+      // Plural: stars→star, tries→try, churches→church
+      if(id.endsWith('ies')&&id.length>4){hit=encFindByMeaning(id.slice(0,-3)+'y');if(hit)return{hit,wasPlural:true,wasPast:false};}
+      if(id.endsWith('es')&&id.length>3){hit=encFindByMeaning(id.slice(0,-2))||encFindByMeaning(id.slice(0,-1));if(hit)return{hit,wasPlural:true,wasPast:false};}
+      if(id.endsWith('s')&&id.length>2){hit=encFindByMeaning(id.slice(0,-1));if(hit)return{hit,wasPlural:true,wasPast:false};}
+      return null;
+    }
+
+    const tokens=input.match(/[\w']+|[^\w\s]/g)||[];
+    const tResults=[];
+    for(const tok of tokens){
+      if(/[^\w']/.test(tok)){tResults.push({type:'punct',val:tok});continue;}
+      const id=tok.toLowerCase().replace(/['']/g,'');
+      if(skipWords.has(id))continue;
+      const found=tryLookup(id);
+      if(found){
+        const{hit,wasPlural,wasPast}=found;
+        const isVerb=hit.category==='Actions';
+        const isNoun=['People','Body','Cosmos','Place','Concepts','Numbers','Time','Descriptors'].includes(hit.category);
+        const effectiveTense=wasPast?'past':sentTense;
+        let prefixes=[];
+        if(isVerb){
+          if(effectiveTense==='past'&&sentNeg)prefixes=['lu','kese'];
+          else if(effectiveTense==='future'&&sentNeg)prefixes=['ni','kese'];
+          else if(effectiveTense==='past')prefixes=['lu'];
+          else if(effectiveTense==='future')prefixes=['ni'];
+          else if(sentNeg)prefixes=['kese'];
+        }else if(wasPlural)prefixes=['nalu'];
+        tResults.push({type:'hit',hit,prefixes,original:tok,kel:false});
+      }else{
+        tResults.push({type:'miss',val:id,original:tok});
+      }
+    }
+    // Attach -kel to last hit if question
+    if(isQuestion){for(let i=tResults.length-1;i>=0;i--){if(tResults[i].type==='hit'){tResults[i].kel=true;break;}}}
+
+    for(const tr of tResults){
+      if(tr.type==='punct'){html+=tr.val+' ';continue;}
+      if(tr.type==='miss'){
+        const id=tr.val;
+        html+=`<span class="enc-miss" onclick="encSelectMiss('${id}')">${tr.original}</span> `;
+        if(!missing.includes(id))missing.push(id);
+        continue;
+      }
+      const w=tr.hit.word||'';
+      const clean=w.replace(/^꩜\s*/,'');
+      const kel=tr.kel?'-kel':'';
+      for(const p of tr.prefixes){
+        html+=`<span class="enc-hit" style="opacity:.75">${p}</span> `;
+        tokenHits.push({label:p,word:p});
+      }
+      html+=w.startsWith('꩜')
+        ?`<span class="enc-nm">꩜</span> <span class="enc-hit">${clean}${kel}</span> `
+        :`<span class="enc-hit">${clean}${kel}</span> `;
+      tokenHits.push({label:tr.original,word:clean+(kel)});
     }
   } else {
     const tokens=input.toLowerCase().split(/\s+/).filter(Boolean);
