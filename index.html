@@ -1596,7 +1596,7 @@ function encSelectMiss(word){
     const deriveSection=`<div style="margin-top:18px;border-top:1px solid rgba(167,139,250,.1);padding-top:14px">
       <div class="enc-sug-title" style="margin-top:0">✦ DERIVE FROM EXISTING WORD</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px" id="enc-derive-rels">
-        ${[['plural','nalu +'],['present','present'],['past','lu +'],['future','ni +'],['negative','kese +'],['reflexive','+ -self'],['compound','blend']].map(([r,lbl])=>`<button class="enc-cancel-btn" style="font-size:.64rem;padding:3px 10px" id="enc-drel-${r}" onclick="encDeriveSelect('${r}','${word}')">${lbl} (${r})</button>`).join('')}
+        ${[['plural','nalu +'],['present','base form'],['past','lu +'],['future','ni +'],['negative','kese +'],['reflexive','+ -self'],['compound','blend']].map(([r,lbl])=>`<button class="enc-cancel-btn" style="font-size:.64rem;padding:3px 10px" id="enc-drel-${r}" onclick="encDeriveSelect('${r}','${word}')">${lbl} (${r})</button>`).join('')}
       </div>
       <div id="enc-derive-base-row" style="margin-bottom:8px">
         <div style="font-size:.62rem;color:rgba(196,181,253,.4);letter-spacing:.08em;font-family:'Cinzel',serif;margin-bottom:5px" id="enc-derive-base-label">BASE WORD</div>
@@ -1656,9 +1656,9 @@ function encDeriveSelect(rel, word){
   const previewEl=document.getElementById('enc-derive-preview');
   const ankEl=document.getElementById('enc-derive-ank-preview');
   const pronEl=document.getElementById('enc-derive-pron-preview');
-  const particles={plural:'nalu',present:'',past:'lu',future:'ni',negative:'kese',reflexive:'…-eyo',compound:'blend'};
+  const particles={plural:'nalu',present:'[base word]',past:'lu',future:'ni',negative:'kese',reflexive:'…-eyo',compound:'blend'};
   if(ankEl) ankEl.textContent=particles[rel]||rel;
-  if(pronEl) pronEl.textContent=rel==='plural'?'add to vocab as-is, or type a base word above':'type a base word above to generate';
+  if(pronEl) pronEl.textContent=(rel==='plural'||rel==='present')?'type a base word above (or add as-is)':'type a base word above to generate';
   if(previewEl) previewEl.style.display='flex';
   encDeriveUpdate(word);
 }
