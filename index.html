@@ -228,6 +228,7 @@
   ::-webkit-scrollbar-thumb { background: rgba(139,92,246,.3); border-radius: 3px; }
 
   /* ── Encoder glyph strip ── */
+  .enc-punct { display:inline-flex; align-items:center; vertical-align:middle; opacity:.85; }
   .enc-glyph-strip { display:flex; flex-wrap:wrap; gap:10px 18px; padding:14px 0 6px; border-top:1px solid rgba(167,139,250,.07); align-items:flex-end; margin-top:6px; }
   .enc-glyph-group { display:flex; flex-direction:column; align-items:center; gap:4px; }
   .enc-glyph-phones { display:flex; gap:1px; align-items:center; }
@@ -477,6 +478,16 @@ function makeSVG(paths,size,color,active,vb='0 0 52 56'){
 
 function colorKey(s){ return s.type==='vowel'&&s.long?'vowel-long':s.type; }
 function getColor(s,active){ const c=TYPE_COLORS[colorKey(s)]||TYPE_COLORS.consonant; return active?c.active:c.base; }
+
+// ── Punctuation glyphs (dotless, minimal) ─────────────────────
+const PUNCT_GLYPHS = {
+  '.': [{t:'line', x1:17, y1:44, x2:35, y2:44}],
+  ',': [{t:'path', d:'M 26 28 L 26 44 Q 32 50 22 54'}],
+  '?': [{t:'path', d:'M 15 30 A 11 11 0 1 1 26 40'}, {t:'line', x1:18, y1:47, x2:34, y2:47}],
+  '!': [{t:'line', x1:26, y1:14, x2:26, y2:42}, {t:'line', x1:18, y1:48, x2:34, y2:48}],
+};
+const PUNCT_LABELS = {'.':'period', ',':'comma', '?':'question', '!':'exclaim'};
+const PUNCT_COLOR = '#c4b5fd';
 
 // ── Stars ──────────────────────────────────────────────────
 function makeStars(){
@@ -1342,8 +1353,14 @@ function encRenderGlyphStrip(tokenHits){
   const sounds=DATA?.sounds||[];
   let _id=0;
   let h='<div class="enc-glyph-strip" id="enc-glyph-strip-inner">';
-  for(const{word}of tokenHits){
-    const phonemes=parseWordToPhonemes(word);
+  for(const tok of tokenHits){
+    if(tok.isPunct){
+      if(PUNCT_GLYPHS[tok.word]){
+        h+=`<div class="enc-glyph-group"><div class="enc-glyph-phones">${makeSVG(PUNCT_GLYPHS[tok.word],24,PUNCT_COLOR,false)}</div><div class="enc-glyph-lbl">${PUNCT_LABELS[tok.word]||tok.word}</div></div>`;
+      }
+      continue;
+    }
+    const phonemes=parseWordToPhonemes(tok.word);
     if(!phonemes.length)continue;
     h+=`<div class="enc-glyph-group">`;
     h+=`<div class="enc-glyph-phones">`;
@@ -1351,7 +1368,7 @@ function encRenderGlyphStrip(tokenHits){
       const sound=sounds.find(s=>s.id===ph);
       if(sound)h+=makeSVG(sound.paths,24,getColor(sound,false),false);
     }
-    h+=`</div><div class="enc-glyph-lbl">${word}</div></div>`;
+    h+=`</div><div class="enc-glyph-lbl">${tok.label}</div></div>`;
   }
   h+='<button class="copy-btn" style="align-self:center;margin-left:8px" onclick="exportGlyphsFromEl(\'enc-glyph-strip-inner\',\'anokiirii-translation.png\')">save image</button>';
   h+='</div>';
@@ -1523,7 +1540,15 @@ function encTranslate(){
     if(isQuestion){for(let i=tResults.length-1;i>=0;i--){if(tResults[i].type==='hit'){tResults[i].kel=true;break;}}}
 
     for(const tr of tResults){
-      if(tr.type==='punct'){html+=tr.val+' ';continue;}
+      if(tr.type==='punct'){
+        if(PUNCT_GLYPHS[tr.val]){
+          html+=`<span class="enc-punct" title="${PUNCT_LABELS[tr.val]||tr.val}">${makeSVG(PUNCT_GLYPHS[tr.val],22,PUNCT_COLOR,false)}</span> `;
+          tokenHits.push({label:tr.val, word:tr.val, isPunct:true});
+        } else {
+          html+=tr.val+' ';
+        }
+        continue;
+      }
       if(tr.type==='miss'){
         const id=tr.val;
         html+=`<span class="enc-miss" onclick="encSelectMiss('${id}')">${tr.original}</span> `;
@@ -1547,7 +1572,7 @@ function encTranslate(){
     const decPrefixes={
       'nalu': eng=>eng.endsWith('s')||eng.endsWith('x')||eng.endsWith('z')||eng.endsWith('sh')||eng.endsWith('ch')?eng+'es':eng.endsWith('y')&&!/[aeiou]y$/.test(eng)?eng.slice(0,-1)+'ies':eng+'s',
       'na':   eng=>eng.endsWith('e')?eng.slice(0,-1)+'ing':/[^aeiou][aeiou][^aeiouywx]$/.test(eng)?eng+eng.slice(-1)+'ing':eng+'ing',
-      'lu':   eng=>eng.endsWith('e')?eng+'d':eng.endsWith('y')&&!/[aeiou]y$/.test(eng)?eng.slice(0,-1)+'ied':/[^aeiou][aeiou][^aeiouywx]$/.test(eng)?eng+eng.slice(-1)+'ed':eng+'ed',
+      'lu':   eng=>{const irreg={be:'was',have:'had',do:'did',go:'went',say:'said',get:'got',make:'made',know:'knew',think:'thought',take:'took',see:'saw',come:'came',want:'wanted',give:'gave',find:'found',tell:'told',work:'worked',call:'called',feel:'felt',become:'became',leave:'left',put:'put',mean:'meant',keep:'kept',let:'let',begin:'began',show:'showed',hear:'heard',run:'ran',bring:'brought',write:'wrote',stand:'stood',lose:'lost',pay:'paid',meet:'met',set:'set',win:'won',read:'read',spend:'spent',grow:'grew',fall:'fell',send:'sent',build:'built',hold:'held',buy:'bought',wear:'wore',choose:'chose',lead:'led',understand:'understood',speak:'spoke',drive:'drove',break:'broke',sit:'sat',ride:'rode',teach:'taught',catch:'caught',eat:'ate',sleep:'slept',rise:'rose',sell:'sold',blow:'blew',throw:'threw',fly:'flew',draw:'drew',forget:'forgot',cut:'cut',hit:'hit',hurt:'hurt',let:'let',shut:'shut',split:'split'};return irreg[eng.toLowerCase()]||(eng.endsWith('e')?eng+'d':eng.endsWith('y')&&!/[aeiou]y$/.test(eng)?eng.slice(0,-1)+'ied':/[^aeiou][aeiou][^aeiouywx]$/.test(eng)?eng+eng.slice(-1)+'ed':eng+'ed');},
       'ni':   eng=>'will '+eng,
       'kese': eng=>'not '+eng,
       'wa':   eng=>eng+"'s",
