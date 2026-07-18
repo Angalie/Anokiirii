@@ -1469,10 +1469,10 @@ function encTranslate(){
     const isQuestion=/\?\s*$/.test(input.trim());
 
     // Auxiliary/function words absorbed by the prefix system — never look these up as vocab
-    const skipWords=new Set([‘a’,’an’,’the’,’is’,’are’,’am’,’be’,’been’,’being’,’has’,’have’,’had’,’do’,’does’,’did’,’will’,’would’,’shall’,’not’,’never’,’to’,’of’,’and’,’or’,’but’,’so’,’yet’]);
+    const skipWords=new Set(['a','an','the','is','are','am','be','been','being','has','have','had','do','does','did','will','would','shall','not','never','to','of','and','or','but','so','yet']);
 
     // Irregular past tense → base form map
-    const irregPast={went:’go’,saw:’see’,came:’come’,got:’get’,made:’make’,knew:’know’,thought:’think’,took:’take’,said:’say’,felt:’feel’,gave:’give’,found:’find’,told:’tell’,became:’become’,left:’leave’,ran:’run’,fell:’fall’,grew:’grow’,kept:’keep’,led:’lead’,met:’meet’,paid:’pay’,sent:’send’,stood:’stand’,heard:’hear’,lost:’lose’,spent:’spend’,built:’build’,held:’hold’,won:’win’,wrote:’write’,was:’be’,were:’be’};
+    const irregPast={went:'go',saw:'see',came:'come',got:'get',made:'make',knew:'know',thought:'think',took:'take',said:'say',felt:'feel',gave:'give',found:'find',told:'tell',became:'become',left:'leave',ran:'run',fell:'fall',grew:'grow',kept:'keep',led:'lead',met:'meet',paid:'pay',sent:'send',stood:'stand',heard:'hear',lost:'lose',spent:'spend',built:'build',held:'hold',won:'win',wrote:'write',was:'be',were:'be'};
 
     // Only stem in multi-word sentences, not single-word lookups
     const multiWord=/\s/.test(input.trim());
@@ -1480,76 +1480,76 @@ function encTranslate(){
     // Per-clause tense/neg detection
     function getClauseProps(text){
       const t=text.toLowerCase();
-      let tense=’present’;
-      if(/\b(will|would|shall|gonna)\b/.test(t)||/\bgoing to\b/.test(t)) tense=’future’;
-      else if(/\b(was|were|did|had|went|saw|came|got|made|knew|thought|took|said|felt|gave|found|told|became|left|ran|fell|grew|kept|led|met|paid|sent|stood|heard|lost|spent|built|held|won|wrote|read)\b/.test(t)) tense=’past’;
-      return{tense, neg:/\b(not|never)\b|n’t\b/.test(t)};
+      let tense='present';
+      if(/\b(will|would|shall|gonna)\b/.test(t)||/\bgoing to\b/.test(t)) tense='future';
+      else if(/\b(was|were|did|had|went|saw|came|got|made|knew|thought|took|said|felt|gave|found|told|became|left|ran|fell|grew|kept|led|met|paid|sent|stood|heard|lost|spent|built|held|won|wrote|read)\b/.test(t)) tense='past';
+      return{tense, neg:/\b(not|never)\b|n't\b/.test(t)};
     }
 
     // Try to find a vocab entry for a word, with stemming fallbacks
     function tryLookup(id){
-      // Strip possessive ‘s and flag it
+      // Strip possessive 's and flag it
       let wasPossessive=false;
-      if(id.endsWith("’s")||id.endsWith(‘’s’)){id=id.slice(0,-2);wasPossessive=true;}
-      else if(id.endsWith("s’")||id.endsWith(‘s’’)&&id.length>2){id=id.slice(0,-1);wasPossessive=true;}
+      if(id.endsWith("'s")||id.endsWith('’s')){id=id.slice(0,-2);wasPossessive=true;}
+      else if(id.endsWith("s'")||id.endsWith('s’')&&id.length>2){id=id.slice(0,-1);wasPossessive=true;}
       let hit=encFindByMeaning(id);
       if(hit)return{hit,wasPlural:false,wasPast:false,wasPossessive};
       if(!multiWord)return null; // single word — exact match only
       // Irregular past
       if(irregPast[id]){hit=encFindByMeaning(irregPast[id]);if(hit)return{hit,wasPlural:false,wasPast:true};}
       // -ed past: loved→love, walked→walk, tried→try
-      if(id.endsWith(‘ed’)&&id.length>3){
-        for(const s of[id.slice(0,-2),id.slice(0,-1),id.slice(0,-3)+’y’]){hit=encFindByMeaning(s);if(hit)return{hit,wasPlural:false,wasPast:true};}
+      if(id.endsWith('ed')&&id.length>3){
+        for(const s of[id.slice(0,-2),id.slice(0,-1),id.slice(0,-3)+'y']){hit=encFindByMeaning(s);if(hit)return{hit,wasPlural:false,wasPast:true};}
       }
       // -ing: loving→love, running→run
-      if(id.endsWith(‘ing’)&&id.length>4){
-        for(const s of[id.slice(0,-3),id.slice(0,-3)+’e’]){hit=encFindByMeaning(s);if(hit)return{hit,wasPlural:false,wasPast:false};}
+      if(id.endsWith('ing')&&id.length>4){
+        for(const s of[id.slice(0,-3),id.slice(0,-3)+'e']){hit=encFindByMeaning(s);if(hit)return{hit,wasPlural:false,wasPast:false};}
       }
       // Plural: stars→star, tries→try, churches→church
-      if(id.endsWith(‘ies’)&&id.length>4){hit=encFindByMeaning(id.slice(0,-3)+’y’);if(hit)return{hit,wasPlural:true,wasPast:false};}
-      if(id.endsWith(‘es’)&&id.length>3){hit=encFindByMeaning(id.slice(0,-2))||encFindByMeaning(id.slice(0,-1));if(hit)return{hit,wasPlural:true,wasPast:false};}
-      if(id.endsWith(‘s’)&&id.length>2){hit=encFindByMeaning(id.slice(0,-1));if(hit)return{hit,wasPlural:true,wasPast:false};}
+      if(id.endsWith('ies')&&id.length>4){hit=encFindByMeaning(id.slice(0,-3)+'y');if(hit)return{hit,wasPlural:true,wasPast:false};}
+      if(id.endsWith('es')&&id.length>3){hit=encFindByMeaning(id.slice(0,-2))||encFindByMeaning(id.slice(0,-1));if(hit)return{hit,wasPlural:true,wasPast:false};}
+      if(id.endsWith('s')&&id.length>2){hit=encFindByMeaning(id.slice(0,-1));if(hit)return{hit,wasPlural:true,wasPast:false};}
       return null;
     }
 
-    // Split into clauses on commas/semicolons so tense/neg don’t bleed across clause boundaries
+    // Split into clauses on commas/semicolons so tense/neg don't bleed across clause boundaries
     const clauseSegs=input.split(/([,;]+\s*)/);
     const tResults=[];
     for(let ci=0;ci<clauseSegs.length;ci++){
       const seg=clauseSegs[ci];
       // Odd indices are separators — emit as punct tokens
       if(ci%2===1){
-        for(const ch of seg.trim()){if(‘,;’.includes(ch))tResults.push({type:’punct’,val:ch});}
+        for(const ch of seg.trim()){if(',;'.includes(ch))tResults.push({type:'punct',val:ch});}
         continue;
       }
       const{tense:clauseTense,neg:clauseNeg}=getClauseProps(seg);
-      const clauseTokens=seg.match(/[\w’’’]+|[^\w\s]/g)||[];
+      const clauseTokens=seg.match(/[\w''']+|[^\w\s]/g)||[];
       for(const tok of clauseTokens){
-        if(/[^\w’’’]/.test(tok)){tResults.push({type:’punct’,val:tok});continue;}
-        const id=tok.toLowerCase().replace(/[‘’’’]/g,’’);
+        if(/[^\w''']/.test(tok)){tResults.push({type:'punct',val:tok});continue;}
+        const id=tok.toLowerCase().replace(/['''']/g,'');
         if(skipWords.has(id))continue;
         const found=tryLookup(id);
         if(found){
           const{hit,wasPlural,wasPast,wasPossessive}=found;
-          const isVerb=hit.category===’Actions’;
-          const effectiveTense=wasPast?’past’:clauseTense;
+          const isVerb=hit.category==='Actions';
+          const effectiveTense=wasPast?'past':clauseTense;
           let prefixes=[];
-          if(wasPossessive)prefixes=[‘wa’];
+          if(wasPossessive)prefixes=['wa'];
           else if(isVerb){
-            if(effectiveTense===’past’&&clauseNeg)prefixes=[‘lu’,’kese’];
-            else if(effectiveTense===’future’&&clauseNeg)prefixes=[‘ni’,’kese’];
-            else if(effectiveTense===’past’)prefixes=[‘lu’];
-            else if(effectiveTense===’future’)prefixes=[‘ni’];
-            else if(clauseNeg)prefixes=[‘kese’];
-          }else if(wasPlural)prefixes=[‘nalu’];
-          tResults.push({type:’hit’,hit,prefixes,original:tok,kel:false});
+            if(effectiveTense==='past'&&clauseNeg)prefixes=['lu','kese'];
+            else if(effectiveTense==='future'&&clauseNeg)prefixes=['ni','kese'];
+            else if(effectiveTense==='past')prefixes=['lu'];
+            else if(effectiveTense==='future')prefixes=['ni'];
+            else if(clauseNeg)prefixes=['kese'];
+          }else if(wasPlural)prefixes=['nalu'];
+          tResults.push({type:'hit',hit,prefixes,original:tok,kel:false});
         }else{
-          tResults.push({type:’miss’,val:id,original:tok});
+          tResults.push({type:'miss',val:id,original:tok});
         }
       }
     }
     // Attach -kel to last hit if question
-    if(isQuestion){for(let i=tResults.length-1;i>=0;i--){if(tResults[i].type===’hit’){tResults[i].kel=true;break;}}}
+    if(isQuestion){for(let i=tResults.length-1;i>=0;i--){if(tResults[i].type==='hit'){tResults[i].kel=true;break;}}}
 
     for(const tr of tResults){
       if(tr.type==='punct'){
