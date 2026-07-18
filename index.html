@@ -1543,14 +1543,47 @@ function encTranslate(){
       tokenHits.push({label:tr.original,word:clean+(kel)});
     }
   } else {
+    // Grammar prefixes: map Anokiirii particle → how to transform English output
+    const decPrefixes={
+      'nalu': eng=>eng.replace(/y$/,'ie')+'s'===eng?eng+'s':eng.endsWith('s')||eng.endsWith('x')||eng.endsWith('z')||eng.endsWith('sh')||eng.endsWith('ch')?eng+'es':eng.endsWith('y')&&!/[aeiou]y$/.test(eng)?eng.slice(0,-1)+'ies':eng+'s',
+      'na':   eng=>eng, // present — base form
+      'lu':   eng=>eng.endsWith('e')?eng+'d':eng.endsWith('y')&&!/[aeiou]y$/.test(eng)?eng.slice(0,-1)+'ied':/[^aeiou][aeiou][^aeiouywx]$/.test(eng)?eng+eng.slice(-1)+'ed':eng+'ed',
+      'ni':   eng=>'will '+eng,
+      'kese': eng=>'not '+eng,
+      'wa':   eng=>eng+"'s",
+    };
     const tokens=input.toLowerCase().split(/\s+/).filter(Boolean);
-    for(const tok of tokens){
+    let i=0;
+    while(i<tokens.length){
+      const tok=tokens[i];
       const clean=tok.replace(/[^a-z]/g,'');
-      const hit=encFindByWord(clean);
-      html+=hit
-        ?`<span class="enc-hit">${hit.english||hit.meaning||clean}</span> `
-        :`<span class="enc-miss" onclick="encSelectMiss('${clean}')">${clean}</span> `;
-      if(!hit&&clean&&!missing.includes(clean))missing.push(clean);
+      // Check if this token is a known prefix
+      if(decPrefixes[clean]&&i+1<tokens.length){
+        const nextClean=tokens[i+1].replace(/[^a-z\-]/g,'');
+        // Handle -kel suffix on next token
+        const hasKel=nextClean.endsWith('-kel');
+        const baseAnk=hasKel?nextClean.slice(0,-4):nextClean;
+        const hit=encFindByWord(baseAnk);
+        if(hit){
+          const baseEng=hit.english||hit.meaning||baseAnk;
+          let transformed=decPrefixes[clean](baseEng);
+          if(hasKel) transformed+='?';
+          html+=`<span class="enc-hit" style="opacity:.7">[${clean}]</span> <span class="enc-hit">${transformed}</span> `;
+          i+=2;continue;
+        }
+      }
+      // Handle -kel suffix on standalone token
+      const hasKel=clean.endsWith('kel')&&clean.includes('-');
+      const baseAnk=hasKel?clean.slice(0,-4):clean;
+      const hit=encFindByWord(baseAnk);
+      if(hit){
+        const eng=hit.english||hit.meaning||baseAnk;
+        html+=`<span class="enc-hit">${eng}${hasKel?'?':''}</span> `;
+      } else {
+        html+=`<span class="enc-miss" onclick="encSelectMiss('${clean}')">${clean}</span> `;
+        if(clean&&!missing.includes(clean))missing.push(clean);
+      }
+      i++;
     }
   }
 
