@@ -1555,33 +1555,39 @@ function encTranslate(){
     const tokens=input.toLowerCase().split(/\s+/).filter(Boolean);
     let i=0;
     while(i<tokens.length){
-      const tok=tokens[i];
-      const clean=tok.replace(/[^a-z]/g,'');
-      // Check if this token is a known prefix
-      if(decPrefixes[clean]&&i+1<tokens.length){
-        const nextClean=tokens[i+1].replace(/[^a-z\-]/g,'');
-        // Handle -kel suffix on next token
-        const hasKel=nextClean.endsWith('-kel');
-        const baseAnk=hasKel?nextClean.slice(0,-4):nextClean;
-        const hit=encFindByWord(baseAnk);
-        if(hit){
-          const baseEng=hit.english||hit.meaning||baseAnk;
-          let transformed=decPrefixes[clean](baseEng);
-          if(hasKel) transformed+='?';
-          html+=`<span class="enc-hit">${transformed}</span> `;
-          i+=2;continue;
+      const clean=tokens[i].replace(/[^a-z]/g,'');
+      // Collect consecutive grammar prefixes (handles stacked e.g. lu kese, ni kese)
+      if(decPrefixes[clean]){
+        const collected=[];
+        let j=i;
+        while(j<tokens.length&&decPrefixes[tokens[j].replace(/[^a-z]/g,'')]){
+          collected.push(tokens[j].replace(/[^a-z]/g,''));
+          j++;
+        }
+        if(j<tokens.length){
+          const nextClean=tokens[j].replace(/[^a-z\-]/g,'');
+          const hasKel=nextClean.endsWith('-kel');
+          const baseAnk=hasKel?nextClean.slice(0,-4):nextClean;
+          const hit=encFindByWord(baseAnk);
+          if(hit){
+            let eng=hit.english||hit.meaning||baseAnk;
+            // Apply prefixes in reverse so outermost wraps last
+            for(let k=collected.length-1;k>=0;k--) eng=decPrefixes[collected[k]](eng);
+            if(hasKel) eng+='?';
+            html+=`<span class="enc-hit">${eng}</span> `;
+            i=j+1;continue;
+          }
         }
       }
-      // Handle -kel suffix on standalone token
+      // Standalone token — handle -kel suffix
       const hasKel=clean.endsWith('kel')&&clean.includes('-');
       const baseAnk=hasKel?clean.slice(0,-4):clean;
       const hit=encFindByWord(baseAnk);
       if(hit){
-        const eng=hit.english||hit.meaning||baseAnk;
-        html+=`<span class="enc-hit">${eng}${hasKel?'?':''}</span> `;
-      } else {
+        html+=`<span class="enc-hit">${hit.english||hit.meaning||baseAnk}${hasKel?'?':''}</span> `;
+      } else if(clean){
         html+=`<span class="enc-miss" onclick="encSelectMiss('${clean}')">${clean}</span> `;
-        if(clean&&!missing.includes(clean))missing.push(clean);
+        if(!missing.includes(clean))missing.push(clean);
       }
       i++;
     }
