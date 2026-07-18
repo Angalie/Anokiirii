@@ -481,10 +481,10 @@ function getColor(s,active){ const c=TYPE_COLORS[colorKey(s)]||TYPE_COLORS.conso
 
 // ── Punctuation glyphs (dotless, minimal) ─────────────────────
 const PUNCT_GLYPHS = {
-  '.': [{t:'line', x1:17, y1:44, x2:35, y2:44}],
-  ',': [{t:'path', d:'M 26 28 L 26 44 Q 32 50 22 54'}],
-  '?': [{t:'path', d:'M 15 30 A 11 11 0 1 1 26 40'}, {t:'line', x1:18, y1:47, x2:34, y2:47}],
-  '!': [{t:'line', x1:26, y1:14, x2:26, y2:42}, {t:'line', x1:18, y1:48, x2:34, y2:48}],
+  '.': [{t:'path', d:'M 26 34 L 34 44 L 26 54 L 18 44 Z'}],
+  ',': [{t:'line', x1:22, y1:32, x2:30, y2:52}, {t:'line', x1:18, y1:36, x2:26, y2:33}],
+  '?': [{t:'path', d:'M 32 26 L 20 38 L 32 42 L 20 54'}],
+  '!': [{t:'line', x1:15, y1:52, x2:19, y2:24}, {t:'line', x1:24, y1:54, x2:28, y2:20}, {t:'line', x1:33, y1:52, x2:37, y2:24}],
 };
 const PUNCT_LABELS = {'.':'period', ',':'comma', '?':'question', '!':'exclaim'};
 const PUNCT_COLOR = '#c4b5fd';
