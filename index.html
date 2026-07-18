@@ -1545,8 +1545,8 @@ function encTranslate(){
   } else {
     // Grammar prefixes: map Anokiirii particle → how to transform English output
     const decPrefixes={
-      'nalu': eng=>eng.replace(/y$/,'ie')+'s'===eng?eng+'s':eng.endsWith('s')||eng.endsWith('x')||eng.endsWith('z')||eng.endsWith('sh')||eng.endsWith('ch')?eng+'es':eng.endsWith('y')&&!/[aeiou]y$/.test(eng)?eng.slice(0,-1)+'ies':eng+'s',
-      'na':   eng=>eng, // present — base form
+      'nalu': eng=>eng.endsWith('s')||eng.endsWith('x')||eng.endsWith('z')||eng.endsWith('sh')||eng.endsWith('ch')?eng+'es':eng.endsWith('y')&&!/[aeiou]y$/.test(eng)?eng.slice(0,-1)+'ies':eng+'s',
+      'na':   eng=>eng.endsWith('e')?eng.slice(0,-1)+'ing':/[^aeiou][aeiou][^aeiouywx]$/.test(eng)?eng+eng.slice(-1)+'ing':eng+'ing',
       'lu':   eng=>eng.endsWith('e')?eng+'d':eng.endsWith('y')&&!/[aeiou]y$/.test(eng)?eng.slice(0,-1)+'ied':/[^aeiou][aeiou][^aeiouywx]$/.test(eng)?eng+eng.slice(-1)+'ed':eng+'ed',
       'ni':   eng=>'will '+eng,
       'kese': eng=>'not '+eng,
@@ -1568,7 +1568,7 @@ function encTranslate(){
           const baseEng=hit.english||hit.meaning||baseAnk;
           let transformed=decPrefixes[clean](baseEng);
           if(hasKel) transformed+='?';
-          html+=`<span class="enc-hit" style="opacity:.7">[${clean}]</span> <span class="enc-hit">${transformed}</span> `;
+          html+=`<span class="enc-hit">${transformed}</span> `;
           i+=2;continue;
         }
       }
