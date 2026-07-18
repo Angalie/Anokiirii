@@ -1463,7 +1463,7 @@ function encTranslate(){
     const irregPast={went:'go',saw:'see',came:'come',got:'get',made:'make',knew:'know',thought:'think',took:'take',said:'say',felt:'feel',gave:'give',found:'find',told:'tell',became:'become',left:'leave',ran:'run',fell:'fall',grew:'grow',kept:'keep',led:'lead',met:'meet',paid:'pay',sent:'send',stood:'stand',heard:'hear',lost:'lose',spent:'spend',built:'build',held:'hold',won:'win',wrote:'write',was:'be',were:'be'};
 
     // English grammar words that get absorbed into Anokiirii prefix system
-    const skipWords=new Set(['will','would','shall','going','did','does','do','was','were','have','has','had','is','am','are','been','be','not','never','a','an','the','to','dont',"don't",'doesnt',"doesn't",'didnt',"didn't",'wont',"won't",'cant',"can't",'couldnt',"couldn't",'wouldnt',"wouldn't"]);
+    const skipWords=new Set(['will','would','shall','going','did','does','do','was','were','had','is','am','are','been','be','not','never','a','an','the','to','dont',"don't",'doesnt',"doesn't",'didnt',"didn't",'wont',"won't",'cant',"can't",'couldnt',"couldn't",'wouldnt',"wouldn't"]);
 
     // Only stem in multi-word sentences, not single-word lookups
     const multiWord=/\s/.test(input.trim());
